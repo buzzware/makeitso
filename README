@@ -9,11 +9,11 @@ Background
 In a typical software development team environment, there is often the need to automate tasks such as build and release procedures. Various solutions already exists, such as Ant, Phing, Capistrano, Rake, Make, bash/DOS scripts etc. There are various problems with each of these, that makeitso is designed to resolve, such as :
 
 * Cross-platform ability : PHP is available on most platforms in existence, and installed by default in most cases
-* Yet another language to learn : PHP is a default skill for developers, and more readable than Perl
-* XML is great for configuration, but soon becomes difficult for programming
+* Yet another language to learn : PHP is a default skill for developers, and more readable than Perl, DOS or shell scripts
+* XML is great for configuration, but soon becomes difficult for programming (eg. Ant, Phing)
 * languages such as PHP are good for logic, but bad for configuration
 * configuration should be seperate from build logic, for easy access by non-technical people
-* While I must confess my preferred language is Ruby, it isn't as well known as PHP
+* While I must confess my preferred language is Ruby, it isn't as well known as PHP, or installed in as many environments
 
 Make It So features
 
