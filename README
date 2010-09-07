@@ -1,0 +1,12 @@
+This very simple framework enables a collection of tasks to be defined as methods on a PHP class, and configuration values to be defined in a XML file. The tasks then have easy access to the configuration values as instance variables (declared or dynamic) or via XPath.
+
+
+
+
+To install, install like eg. on MacOS :
+
+sudo pear install http://github.com/buzzware/makeitso/raw/master/releases/makeitso-0.0.1.tgz
+
+You'll need to adjust the version by referring to http://github.com/buzzware/makeitso/tree/master/releases/
+
+
