@@ -1,12 +1,38 @@
+Description
+
 This very simple framework enables a collection of tasks to be defined as methods on a PHP class, and configuration values to be defined in a XML file. The tasks then have easy access to the configuration values as instance variables (declared or dynamic) or via XPath.
 
+Background
 
+In a typical software development team environment, there is often the need to automate tasks such as build and release procedures. Various solutions already exists, such as Ant, Phing, Capistrano, Rake, Make, bash/DOS scripts etc. There are various problems with each of these, that makeitso is designed to resolve, such as :
 
+* Cross-platform ability : PHP is available on most platforms in existence, and installed by default in most cases
+* Yet another language to learn : PHP is a default skill for developers, and more readable than Perl
+* XML is great for configuration, but soon becomes difficult for programming
+* languages such as PHP are good for logic, but bad for configuration
+* configuration should be seperate from build logic, for easy access by non-technical people
+* While I must confess my preferred language is Ruby, it isn't as well known as PHP
+
+Make It So features
+
+* declare your script configuration in XML following a simple schema that specifies the <simpleItems> and <item> tags for name=value type fields eg. <item name="some_variable">its value</item>
+* simple name=value items are automatically injected as instance variables into your script class, so can be accessed like $this->some_variable
+* use freeform XML (whatever you like outside <simpleItems>) and access it via XPath within scripts
+* declare your script as a class with multiple methods that can be called by name from the makeitso command
+* dependencies ? just call one method from another ie do it yourself. No complex rules or syntax to follow
+* pass parameters between methods using ordinary PHP. Unlike the clumsy parameter passing in Ant
 
 To install, install like eg. on MacOS :
 
 sudo pear install http://github.com/buzzware/makeitso/raw/master/releases/makeitso-0.0.1.tgz
 
-You'll need to adjust the version by referring to http://github.com/buzzware/makeitso/tree/master/releases/
+( You'll need to adjust the version by referring to http://github.com/buzzware/makeitso/tree/master/releases/ )
+
+For an example :
+
+cd source/test/example1
+makeitso build
+
+
 
 
