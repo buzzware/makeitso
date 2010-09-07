@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<makeItWhat>
+	<content>
+		<simpleItems>
+			<item name="colour">red</item>
+			<item name="size">medium</item>
+		</simpleItems>
+		<database>
+			<username></username>
+			<password></password>
+		</database>
+		<website>
+			<path>/var/www/mysite</path>
+		</website>
+	</content>
+</makeItWhat>

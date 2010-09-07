@@ -1,0 +1,19 @@
+#!/Applications/MAMP/bin/php5.2/bin/php
+<?php
+
+	require_once dirname(__FILE__).'/MakeItHowBase.php';
+
+	// commandline examples :
+	// makeitso --verbose go makeithow.php
+	// makeitso go
+	// makeitso how2.php
+	//
+	// So pattern is :
+	//
+	// makeitso [options] <task> <how.php> <what.xml>
+
+	$how = MakeItHowBase::loadClass();
+	$how->loadWhat();
+	$how->callTask($how->task);
+
+?>
