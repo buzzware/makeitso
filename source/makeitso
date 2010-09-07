@@ -1,7 +1,7 @@
-#!/Applications/MAMP/bin/php5.2/bin/php
+#!@php_bin@
 <?php
 
-	require_once dirname(__FILE__).'/MakeItHowBase.php';
+	require_once 'MakeItHowBase.php';
 
 	// commandline examples :
 	// makeitso --verbose go makeithow.php
