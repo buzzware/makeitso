@@ -1,57 +1,31 @@
 <?php
-
-	// prob should use Console_CommandLine
-	// see http://pear.php.net/manual/en/package.console.console-opt-comparison.php
-//	require_once "Console/Getopt.php";
+/* makeitso
+ *
+ * The MIT License
+ *
+ * Copyright (c) 2010, Gary McGhee, Buzzware Solutions <contact@buzzware.com.au>.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
 
 class ConsoleUtils {
-
-	//require_once 'Console_Getopt.php';
-	//$longoptions = array("file=","help")
-	//$con = new Console_Getopt;
-	//$args = Console_Getopt::readPHPArgv();
-	//
-	//$shortoptions = "h";
-	//$longoptions = array("file=", "help");
-	//
-	//$ret = getOptions(null, $shortoptions, $longoptions);
-	//
-	//If this is run with the parameters -h --file=error.log, $ret will have the following structure:
-	//
-	//Array
-	//(
-	//    [h] => 1
-	//    [--file] => error.log
-	//)
-
-//static function getOptions($default_opt, $shortoptions, $longoptions) {
-//
-//	$con = new Console_Getopt;
-//	$ret = $con->getopt($args, $shortoptions, $longoptions);
-//	$opts = array();
-//	foreach($ret[0] as $arr) {
-//		$rhs = ($arr[1] !== null)?$arr[1]:true;
-//		if(array_key_exists($arr[0], $opts)) {
-//			if(is_array($opts[$arr[0]])) {
-//				$opts[$arr[0]][] = $rhs;
-//			}
-//		else {
-//			$opts[$arr[0]] = array($opts[$arr[0]], $rhs);
-//		}
-//	}
-//	else {
-//	 $opts[$arr[0]] = $rhs;
-//	}
-// }
-// if(is_array($default_opt)) {
-//	 foreach ($default_opt as $k => $v) {
-//		 if(!array_key_exists($k, $opts)) {
-//			 $opts[$k] = $v;
-//		 }
-//	 }
-// }
-// return $opts;
-//}
 
 	static function isarg($string) {
 		$p = strpos($string,'-');
@@ -75,7 +49,6 @@ class ConsoleUtils {
 		return array_values($opts);
 	}
 
-
 	static function split_option($option) {
 		$result = array();
 		preg_match_all("/--([^\s=]+)={0,1}(.*)/", $option, &$result);
@@ -92,8 +65,6 @@ class ConsoleUtils {
 		}
 		return $opts;
 	}
-
-
 }
 
 /**
@@ -175,10 +146,8 @@ class MakeItHowBase {
 		return $result;								// return text
 	}
 
-
 	function callTask($task) {
 		$this->{$task}();
 	}
-
 }
 ?>

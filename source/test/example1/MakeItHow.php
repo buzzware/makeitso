@@ -13,6 +13,12 @@ class MakeItHow extends MakeItHowBase {
 		echo('shape: '.$this->shape);
 		echo('size: '.$this->size);
 	}
+
+	function dir() {
+		$cmd = escapeshellcmd("ls " . $this->path);
+		exec($cmd,$result,$retcode);
+		echo($result);
+	}
 	
 }
 ?>

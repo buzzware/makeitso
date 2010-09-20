@@ -67,6 +67,9 @@
 		</Folder>
 	</CustomFolders>
 	<Files AutoFolders="DirectoryView">
+		<Folder Name="source">
+			<F N="source/makeitso"/>
+		</Folder>
 		<F
 			N="*.php"
 			Recurse="1"
