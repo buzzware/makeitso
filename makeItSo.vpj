@@ -71,6 +71,11 @@
 			<F N="source/makeitso"/>
 		</Folder>
 		<F
+			N="*.bat"
+			Recurse="1"
+			Refilter="0"
+			Excludes=""/>
+		<F
 			N="*.php"
 			Recurse="1"
 			Refilter="0"

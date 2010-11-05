@@ -65,6 +65,48 @@ class ConsoleUtils {
 		}
 		return $opts;
 	}
+	
+	/**
+	 * Parses $GLOBALS['argv'] for parameters and assigns them to an array.
+	 *
+	 * Supports:
+	 * -e
+	 * -e <value>
+	 * --long-param
+	 * --long-param=<value>
+	 * --long-param <value>
+	 * <value>
+	 *
+	 * @param array $noopt List of parameters without values
+	 */
+	static function parseParameters($noopt = array()) {
+			$result = array();
+			$params = $GLOBALS['argv'];
+			// could use getopt() here (since PHP 5.3.0), but it doesn't work relyingly
+			reset($params);
+			while (list($tmp, $p) = each($params)) {
+					if ($p{0} == '-') {
+							$pname = substr($p, 1);
+							$value = true;
+							if ($pname{0} == '-') {
+									// long-opt (--<param>)
+									$pname = substr($pname, 1);
+									if (strpos($p, '=') !== false) {
+											// value specified inline (--<param>=<value>)
+											list($pname, $value) = explode('=', substr($p, 2), 2);
+									}
+							}
+							// check if next parameter is a descriptor or a value
+							$nextparm = current($params);
+							if (!in_array($pname, $noopt) && $value === true && $nextparm !== false && $nextparm{0} != '-') list($tmp, $value) = each($params);
+							$result[$pname] = $value;
+					} else {
+							// param doesn't belong to any option
+							$result[] = $p;
+					}
+			}
+			return $result;
+	}
 }
 
 /**
@@ -89,25 +131,44 @@ class MakeItHowBase {
 	}	
 	
 	static function loadClass($_argv = NULL) {
-		if (!$_argv)
-			$_argv = $_SERVER['argv'];
-		$argsOnly = ConsoleUtils::getArgsOnly($_argv);
-		if (MakeItHowBase::endswith($argsOnly[0],'makeitso'))	// remove makeitso if it is there in the first spot
-			array_shift($argsOnly);
-		$howFile = count($argsOnly) >= 2 ? $argsOnly[1] : 'MakeItHow.php';
+		//print_r($_SERVER);
+		//if (!$_argv)
+		//	$_argv = $_SERVER['argv'];
+		//print_r($_argv);
+		//$argsOnly = ConsoleUtils::getArgsOnly($_argv);
+		//print_r($argsOnly);
+		$pars = ConsoleUtils::parseParameters();
+		print_r($pars);
+		$howFile = isset($pars[2]) ? $pars[2] : 'MakeItHow.php';
+		print($howFile);
 		$howFile = realpath($howFile);
 		require_once $howFile;
 		$result = new MakeItHow();
-		$result->argsOnly = $argsOnly;
-		$result->optionsOnly = ConsoleUtils::getOptionsOnly($_argv);
+		//$result->argsOnly = $argsOnly;
+		//$result->optionsOnly = ConsoleUtils::getOptionsOnly($_argv);
 		$result->howFilePath = $howFile;
-		if (count($argsOnly) > 0)
-			$result->task = $argsOnly[0];
 		return $result;
 	}
 
 	function __construct() {
 		$this->workingPath = getcwd();
+		$argsandopts = ConsoleUtils::parseParameters();
+		print_r($argsandopts);
+		$this->argsOnly = Array();
+		$this->optionsOnly = Array();
+		foreach ($argsandopts as $key => $value) {
+			if (is_numeric($key)) {
+				$this->argsOnly[$key] = $value;
+			} else {
+				$this->optionsOnly[$key] = $value;
+			}
+		}
+		if (MakeItHowBase::endswith($this->argsOnly[0],'makeitso'))	// remove makeitso if it is there in the first spot
+			array_shift($this->argsOnly);
+		if (isset($this->argsOnly[0]))
+			$this->task = $this->argsOnly[0];
+		print_r($this->argsOnly);
+		print_r($this->optionsOnly);
 	}
 
 	function setSimpleItems() {
@@ -116,7 +177,7 @@ class MakeItHowBase {
 			$value = (string) $item[0];
 			$this->{$name} = $value;
 		}
-		$a = ConsoleUtils::optionsArrayToAssoc($this->optionsOnly);
+		$a = $this->optionsOnly; //ConsoleUtils::optionsArrayToAssoc($this->optionsOnly);
 		foreach ($a as $key => $value) {
 			$this->{$key} = $value;
 		}
@@ -159,7 +220,7 @@ class MakeItHowBase {
 	}
 	
 	function isWindows() {
-		return ($_SERVER['OS']=='Windows_NT');
+		return isset($_SERVER['OS']) && ($_SERVER['OS']=='Windows_NT');
 	}
 	
 	function isUnix() {
