@@ -1,0 +1,31 @@
+http://webcache.googleusercontent.com/search?q=cache:http://blog.pear.php.net/2009/07/01/php-53-windows-and-pear/
+
+PHP 5.3 Windows and PEAR (go-pear.phar)
+Some users have reported that the windows builds of PHP 5.3 are not able to open the shipped go-pear.phar file.
+
+As a workaround, users can run the distributed phar with php -d phar.require_hash=0 go-pear.phar or download and use the http://pear.php.net/go-pear non-pharred version.
+
+
+make links from production locations to repos
+prod locations looked like :
+
+-rw-r--r--  1 root  wheel  4618  7 Sep 12:16 /usr/local/PEAR/MakeItHowBase.php
+-rwxr-xr-x  1 root  wheel  354  7 Sep 12:16 /usr/local/bin/makeitso
+
+ln -s /Users/gary/repos/makeItSo/source/MakeItHowBase.php /usr/local/PEAR/MakeItHowBase.php
+ln -s /Users/gary/repos/makeItSo/source/makeitso /usr/local/bin/makeitso
+
+
+Windows :
+
+Y:\repos\makeItSo\source\test\example1>pear install "C:\Documents and Settings\Gary\Desktop\makeitso-0.0.1.tgz"
+
+Y:\repos\makeItSo\source\test\example1>pear uninstall __uri/makeitso
+uninstall ok: channel://__uri/makeitso-0.0.1
+
+
+Y:\repos\makeItSo\source>"C:\Program Files\PHP\php.exe" makeitso --colour=green --path=C:\ dir test\exampleWin\MakeItHow.php test\exampleWin\MakeItWhat.xml
+
+php makeitso --colour=green --path=/Users/gary/temp dir test/exampleWin/MakeItHow.php test/exampleWin/MakeItWhat.xml
+
+
