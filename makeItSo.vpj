@@ -80,5 +80,6 @@
 			Recurse="1"
 			Refilter="0"
 			Excludes=".git/"/>
+		<F N="notes.txt"/>
 	</Files>
 </Project>

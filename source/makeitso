@@ -1,4 +1,4 @@
-#!/Applications/MAMP/bin/php5.2/bin/php
+#!@php_bin@
 <?php
 /* makeitso
  *

@@ -81,20 +81,28 @@ class MakeItHowBase {
 	var $whatXml;				// MakeItWhat.xml loaded root node
 	var $task = 'main';	// task to execute
 	
+	static function endswith($string, $test) {
+			$strlen = strlen($string);
+			$testlen = strlen($test);
+			if ($testlen > $strlen) return false;
+			return substr_compare($string, $test, -$testlen) === 0;
+	}	
+	
 	static function loadClass($_argv = NULL) {
 		if (!$_argv)
 			$_argv = $_SERVER['argv'];
 		$argsOnly = ConsoleUtils::getArgsOnly($_argv);
-		$howFile = count($argsOnly) > 2 ? $argsOnly[2] : 'MakeItHow.php';
+		if (MakeItHowBase::endswith($argsOnly[0],'makeitso'))	// remove makeitso if it is there in the first spot
+			array_shift($argsOnly);
+		$howFile = count($argsOnly) >= 2 ? $argsOnly[1] : 'MakeItHow.php';
 		$howFile = realpath($howFile);
-
 		require_once $howFile;
 		$result = new MakeItHow();
 		$result->argsOnly = $argsOnly;
 		$result->optionsOnly = ConsoleUtils::getOptionsOnly($_argv);
 		$result->howFilePath = $howFile;
 		if (count($argsOnly) > 0)
-			$result->task = $argsOnly[1];
+			$result->task = $argsOnly[0];
 		return $result;
 	}
 
@@ -115,7 +123,7 @@ class MakeItHowBase {
 	}
 
 	function findXmlFile() {
-		$whatFilename = count($this->argsOnly) > 3 ? $this->argsOnly[3] : null;
+		$whatFilename = count($this->argsOnly) >= 3 ? $this->argsOnly[2] : null;
 		if ($whatFilename && file_exists($whatFilename = realpath($whatFilename))) {
 			return $whatFilename;		// found from 3rd argument
 		}
@@ -149,5 +157,14 @@ class MakeItHowBase {
 	function callTask($task) {
 		$this->{$task}();
 	}
+	
+	function isWindows() {
+		return ($_SERVER['OS']=='Windows_NT');
+	}
+	
+	function isUnix() {
+		return !$this->isWindows();		// ok, its a hack. Otherwise I'd have to get all the codes for Mac, Linux, Solaris etc
+	}
+
 }
 ?>
