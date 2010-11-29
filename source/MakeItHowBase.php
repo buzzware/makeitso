@@ -25,6 +25,8 @@
  *
  */
 
+require_once 'Console_Getargs_Combined.php';
+
 class ConsoleUtils {
 
 	static function isarg($string) {
@@ -159,7 +161,7 @@ class MakeItHowBase {
 		//print_r($_argv);
 		//$argsOnly = ConsoleUtils::getArgsOnly($_argv);
 		//print_r($argsOnly);
-		$pars = ConsoleUtils::processedCmdLine(); //ConsoleUtils::parseParameters();
+		$pars = Console_Getargs_Combined::getArgs(); //ConsoleUtils::parseParameters();
 		print_r($pars);
 		$howFile = isset($pars[2]) ? $pars[2] : 'MakeItHow.php';
 		print($howFile);
@@ -174,7 +176,7 @@ class MakeItHowBase {
 
 	function __construct() {
 		$this->workingPath = getcwd();
-		$this->argsAndOptions = ConsoleUtils::processedCmdLine(); //ConsoleUtils::parseParameters();
+		$this->argsAndOptions = Console_Getargs_Combined::getArgs(); //ConsoleUtils::parseParameters();
 		print_r($this->argsAndOptions);
 //	$this->argsOnly = Array();
 //	$this->optionsOnly = Array();

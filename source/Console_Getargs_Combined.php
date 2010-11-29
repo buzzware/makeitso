@@ -1120,4 +1120,54 @@ class Console_Getargs_Options
  * c-basic-offset: 4
  * End:
 */
+
+class Console_Getargs_Combined {
+
+	static function isarg($string) {
+		$p = strpos($string,'-');
+		return !($p===0);
+	}
+
+	static function split_option($option) {
+		$result = array();
+		preg_match_all("/--([^\s=]+)={0,1}(.*)/", $option, &$result);
+		array_shift($result);
+		return array($result[0][0],$result[1][0]);
+	}
+
+	/*
+	Turns commandline args like :
+	
+		php makeitso --colour=green --path=/Users/gary/temp dir test/exampleWin/MakeItHow.php test/exampleWin/MakeItWhat.xml
+	
+	Into :
+	
+		Array (
+				[colour] => green
+				[path] => /Users/gary/temp
+				[1] => dir
+				[2] => test/exampleWin/MakeItHow.php
+				[3] => test/exampleWin/MakeItWhat.xml
+		)
+	*/
+	static function getArgs() {
+		$obj =& new Console_Getargs_Options();
+		$err = $obj->init(array());
+		$result = array();
+		$i = 1;
+		$args = $obj->args;
+		print_r($args);
+		foreach($args as $a) {
+			if (Console_Getargs_Combined::isarg($a)) {
+				$result[$i++] = $a;
+			} else {
+				$kv = Console_Getargs_Combined::split_option($a);
+				$rhs = ($kv[1]==="" ? true : $kv[1]);
+				$result[$kv[0]] = $rhs;
+			}
+		}
+		return $result;
+	}
+}
+
 ?>
