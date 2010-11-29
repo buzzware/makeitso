@@ -68,6 +68,11 @@
 	</CustomFolders>
 	<Files AutoFolders="DirectoryView">
 		<Folder Name="source">
+			<Folder Name="test">
+				<Folder Name="cmdline">
+					<F N="source/test/cmdline/dumpargs.php"/>
+				</Folder>
+			</Folder>
 			<F N="source/makeitso"/>
 		</Folder>
 		<F

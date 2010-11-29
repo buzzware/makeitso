@@ -28,6 +28,7 @@
 			<file name="makeitso" role="script" >
 				<tasks:replace from="@php_bin@" to="php_bin" type="pear-config" />
 			</file>
+			<file name="makeitso.bat" role="script" />
 			<file name="MakeItHowBase.php" role="php" />
 		</dir>
   </contents>

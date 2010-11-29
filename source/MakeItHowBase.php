@@ -69,6 +69,8 @@ class ConsoleUtils {
 	/**
 	 * Parses $GLOBALS['argv'] for parameters and assigns them to an array.
 	 *
+	 * see http://php.net/manual/en/language.types.array.php
+	 *
 	 * Supports:
 	 * -e
 	 * -e <value>
@@ -107,6 +109,26 @@ class ConsoleUtils {
 			}
 			return $result;
 	}
+	
+	static function processedCmdLine() {
+		require_once 'Getargs.php';
+		$obj =& new Console_Getargs_Options();
+		$err = $obj->init(array());
+		$result = array();
+		$i = 1;
+		$args = $obj->args;
+		print_r($args);
+		foreach($args as $a) {
+			if (ConsoleUtils::isarg($a)) {
+				$result[$i++] = $a;
+			} else {
+				$kv = ConsoleUtils::split_option($a);
+				$rhs = ($kv[1]==="" ? true : $kv[1]);
+				$result[$kv[0]] = $rhs;
+			}
+		}
+		return $result;
+	}
 }
 
 /**
@@ -137,7 +159,7 @@ class MakeItHowBase {
 		//print_r($_argv);
 		//$argsOnly = ConsoleUtils::getArgsOnly($_argv);
 		//print_r($argsOnly);
-		$pars = ConsoleUtils::parseParameters();
+		$pars = ConsoleUtils::processedCmdLine(); //ConsoleUtils::parseParameters();
 		print_r($pars);
 		$howFile = isset($pars[2]) ? $pars[2] : 'MakeItHow.php';
 		print($howFile);
@@ -152,23 +174,21 @@ class MakeItHowBase {
 
 	function __construct() {
 		$this->workingPath = getcwd();
-		$argsandopts = ConsoleUtils::parseParameters();
-		print_r($argsandopts);
-		$this->argsOnly = Array();
-		$this->optionsOnly = Array();
-		foreach ($argsandopts as $key => $value) {
-			if (is_numeric($key)) {
-				$this->argsOnly[$key] = $value;
-			} else {
-				$this->optionsOnly[$key] = $value;
-			}
-		}
-		if (MakeItHowBase::endswith($this->argsOnly[0],'makeitso'))	// remove makeitso if it is there in the first spot
-			array_shift($this->argsOnly);
-		if (isset($this->argsOnly[0]))
-			$this->task = $this->argsOnly[0];
-		print_r($this->argsOnly);
-		print_r($this->optionsOnly);
+		$this->argsAndOptions = ConsoleUtils::processedCmdLine(); //ConsoleUtils::parseParameters();
+		print_r($this->argsAndOptions);
+//	$this->argsOnly = Array();
+//	$this->optionsOnly = Array();
+//	foreach ($argsandopts as $key => $value) {
+//		if (is_numeric($key)) {
+//			$this->argsOnly[$key] = $value;
+//		} else {
+//			$this->optionsOnly[$key] = $value;
+//		}
+//	}
+		if (isset($this->argsAndOptions[1]))
+			$this->task = $this->argsAndOptions[1];
+//	print_r($this->argsOnly);
+//	print_r($this->optionsOnly);
 	}
 
 	function setSimpleItems() {
@@ -177,16 +197,17 @@ class MakeItHowBase {
 			$value = (string) $item[0];
 			$this->{$name} = $value;
 		}
-		$a = $this->optionsOnly; //ConsoleUtils::optionsArrayToAssoc($this->optionsOnly);
-		foreach ($a as $key => $value) {
-			$this->{$key} = $value;
+		//$a = $this->optionsOnly; //ConsoleUtils::optionsArrayToAssoc($this->optionsOnly);
+		foreach ($this->argsAndOptions as $key => $value) {
+			if (!is_numeric($key))
+				$this->{$key} = $value;
 		}
 	}
 
 	function findXmlFile() {
-		$whatFilename = count($this->argsOnly) >= 3 ? $this->argsOnly[2] : null;
+		$whatFilename = $this->argsAndOptions[3];
 		if ($whatFilename && file_exists($whatFilename = realpath($whatFilename))) {
-			return $whatFilename;		// found from 3rd argument
+			return $whatFilename;
 		}
 		$whatFilename = realpath($this->workingPath . DIRECTORY_SEPARATOR . 'MakeItWhat.xml');
 		if (file_exists($whatFilename))
