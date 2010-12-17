@@ -40,6 +40,7 @@ class MakeItHowBase {
 
 	var $whatXml;				// MakeItWhat.xml loaded root node
 	var $task = 'main';	// task to execute
+	var $pars = array();	
 	
 	static function endswith($string, $test) {
 			$strlen = strlen($string);
@@ -52,7 +53,6 @@ class MakeItHowBase {
 		if (!$pars) {
 			$pars = Console_Getargs_Combined::getArgs();
 		}
-		print_r($pars);
 		$how = isset($pars['how']) ? $pars['how'] : 'MakeItHow.php';
 		if (file_exists($how = realpath($how))) {
 			print("Loading How file ".$how." ...\n");
@@ -61,11 +61,12 @@ class MakeItHowBase {
 			return $result;
 		} else {
 			print("Error! How file ".$how." doesn't exist\n");
+			exit(1);
 		}
 	}
 
 	function __construct($pars = NULL) {
-		$this->pars = $pars || Console_Getargs_Combined::getArgs();
+		$this->pars = $pars ? $pars : Console_Getargs_Combined::getArgs();
 		$this->workingPath = getcwd();
 		$this->setSimpleItems(NULL,$pars);
 	}
@@ -89,7 +90,7 @@ class MakeItHowBase {
 	}
 
 	function findXmlFile() {
-		$whatname = isset($this->pars[3]) ? $this->pars[3] : null;
+		$whatname = isset($this->pars['what']) ? $this->pars['what'] : null;
 		if ($whatname && file_exists($whatname = realpath($whatname))) {
 			return $whatname;
 		}
@@ -100,7 +101,7 @@ class MakeItHowBase {
 	}
 
 	function loadWhat($whatname = NULL) {
-		$this->what = $whatname || $this->findXmlFile();
+		$this->what = $whatname ? $whatname : $this->findXmlFile();
 		if ($this->what) {
 			print "Loading what file ".$this->what." ...\n\n";
 			$filestring = file_get_contents($this->what); // load $whatname to $filestring
@@ -125,6 +126,7 @@ class MakeItHowBase {
 			$this->{$task}();
 		} else {
 			print "Failed calling task ".$task." - task doesn't exist\n";
+			exit(1);			
 		}
 	}
 	

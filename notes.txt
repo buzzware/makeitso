@@ -33,6 +33,8 @@ ln -s /Users/gary/repos/makeItSo/source/makeitso /usr/local/bin/makeitso
 
 Windows :
 
+C:\>pear install http://github.com/buzzware/makeitso/raw/master/releases/makeitso-0.2.0.tgz
+
 Y:\repos\makeItSo\source\test\example1>pear install "C:\Documents and Settings\Gary\Desktop\makeitso-0.0.1.tgz"
 
 Y:\repos\makeItSo\source\test\example1>pear uninstall __uri/makeitso
