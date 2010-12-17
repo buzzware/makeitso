@@ -34,8 +34,8 @@ require_once 'Console_Getargs_Combined.php';
  */
 class MakeItHowBase {
 
-	var $howFilePath;		// path to MakeItHow.php
-	var $whatFilePath;	// path to MakeItWhat.xml
+	var $how;		// path to MakeItHow.php
+	var $what;	// path to MakeItWhat.xml
 	var $workingPath;		// current working path
 
 	var $whatXml;				// MakeItWhat.xml loaded root node
@@ -48,61 +48,61 @@ class MakeItHowBase {
 			return substr_compare($string, $test, -$testlen) === 0;
 	}	
 	
-	static function loadClass($_argv = NULL) {
-		$pars = Console_Getargs_Combined::getArgs();
-		//print_r($pars);
-		$howFile = isset($pars[2]) ? $pars[2] : 'MakeItHow.php';
-		//print($howFile);
-		if (file_exists($howFile = realpath($howFile))) {
-			print("Loading How file ".$howFile." ...\n");
-			require_once $howFile;
-			$result = new MakeItHow();
-			$result->howFilePath = $howFile;
+	static function loadClass($pars = NULL) {
+		$pars ||= Console_Getargs_Combined::getArgs();
+		$how = isset($pars['how']) ? $pars['how'] : 'MakeItHow.php';
+		if (file_exists($how = realpath($how))) {
+			print("Loading How file ".$how." ...\n");
+			require_once $how;
+			$result = new MakeItHow($pars);
 			return $result;
 		} else {
-			print("Error! How file ".$howFile." doesn't exist\n");
+			print("Error! How file ".$how." doesn't exist\n");
 		}
 	}
 
-	function __construct() {
+	function __construct($pars = NULL) {
+		$this->pars = $pars || Console_Getargs_Combined::getArgs();
 		$this->workingPath = getcwd();
-		$this->argsAndOptions = Console_Getargs_Combined::getArgs();
-		//print_r($this->argsAndOptions);
-		if (isset($this->argsAndOptions[1]))
-			$this->task = $this->argsAndOptions[1];
+		setSimpleItems(NULL,$pars);
 	}
 
-	function setSimpleItems() {
-		foreach ($this->whatXml->content->simpleItems->item as $item) {
-			$name = (string) $item['name'];
-			$value = (string) $item[0];
-			$this->{$name} = $value;
+	function setSimpleItems($whatXml = NULL,$pars = NULL) {
+		if ($whatXml) {
+			foreach ($whatXml->content->simpleItems->item as $item) {
+				$name = (string) $item['name'];
+				$value = (string) $item[0];
+				$this->{$name} = $value;
+			}
 		}
-		foreach ($this->argsAndOptions as $key => $value) {
-			if (!is_numeric($key))
-				$this->{$key} = $value;
+		if ($pars) {
+			foreach ($pars as $key => $value) {
+				if (!is_numeric($key))
+					$this->{$key} = $value;
+			}
+			if (isset($this->pars[1]))
+				$this->task = $this->pars[1];		
 		}
 	}
 
 	function findXmlFile() {
-		$whatFilename = isset($this->argsAndOptions[3]) ? $this->argsAndOptions[3] : null;
-		if ($whatFilename && file_exists($whatFilename = realpath($whatFilename))) {
-			return $whatFilename;
+		$whatname = isset($this->pars[3]) ? $this->pars[3] : null;
+		if ($whatname && file_exists($whatname = realpath($whatname))) {
+			return $whatname;
 		}
-		$whatFilename = realpath($this->workingPath . DIRECTORY_SEPARATOR . 'MakeItWhat.xml');
-		if (file_exists($whatFilename))
-			return $whatFilename;		// found in working path
+		$whatname = realpath($this->workingPath . DIRECTORY_SEPARATOR . 'MakeItWhat.xml');
+		if (file_exists($whatname))
+			return $whatname;		// found in working path
 		return null;							// not found
 	}
 
-	function loadWhat($whatFilename = NULL) {
-		if(!$whatFilename)
-			$whatFilename = $this->findXmlFile();
-		if ($whatFilename) {
-			$this->whatFilePath = $whatFilename;
-			$filestring = file_get_contents($whatFilename); // load $whatFilename to $filestring
+	function loadWhat($whatname = NULL) {
+		$this->what = $whatname || $this->findXmlFile();
+		if ($this->what) {
+			print "Loading what file ".$this->what." ...\n\n";
+			$filestring = file_get_contents($this->what); // load $whatname to $filestring
 			$this->whatXml = new SimpleXMLElement($filestring);
-			$this->setSimpleItems();
+			$this->setSimpleItems($this->whatXml,$this->pars);
 			return $this->whatXml;
 		}
 	}

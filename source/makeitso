@@ -28,11 +28,14 @@
 
 	function printBanner() {
 		print "\n%%%%%%%%%%%%%%%%%%  MakeItSo  %%%%%%%%%%%%%%%%%%\n\n";
-		print "Usage: makeitso [options] <task> <how.php> <what.xml>\n";
-		print "\n[options] are freeform and entirely up to your application (none are defined by makeitso)\n\tbut must be prefixed with -- eg. --someSwitch=on\n"; 
+		print "Usage: makeitso <task> <arguments and options>\n";
 		print "<task> defaults to main";
-		print "<how.php> defaults to MakeItHow.php in the current working directory\n";
-		print "<what.xml> defaults to MakeItWhat.xml in the current working directory\n";
+		print "\noptions are prefixed with -- eg. --someSwitch=on\n";
+		print "\narguments are given values seperated by a space\n";
+		print "\n";
+		print "Reserved options are :\n"
+		print "  --howFile=<PHP file of class descending from MakeItHowBase (defaults to MakeItHow.php in the current working directory)>\n";
+		print "  --whatFile=<xml file of config values (defaults to MakeItWhat.xml in the current working directory)>\n";
 		print "\n";
 	}
 
@@ -40,13 +43,13 @@
 	require_once 'MakeItHowBase.php';
 
 	// commandline examples :
-	// makeitso --verbose go makeithow.php
+	// makeitso --verbose go --howFile=makeithow.php
 	// makeitso go
-	// makeitso how2.php
+	// makeitso build racetrack
 	//
 	// So pattern is :
 	//
-	// makeitso [options] <task> <how.php> <what.xml>
+	// makeitso <task> <arguments and options>
 
 	printBanner();
 	$how = MakeItHowBase::loadClass();

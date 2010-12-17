@@ -30,6 +30,22 @@ sudo pear install http://github.com/buzzware/makeitso/raw/master/releases/makeit
 
 ( You'll need to adjust the version by referring to http://github.com/buzzware/makeitso/tree/master/releases/ )
 
+Usage
+
+The minimum requirement for the commandline is to give the task to execute 
+eg.
+
+makeItSo build
+
+makeItSo defines some reserved options, such as 'how' and 'what' for 
+providing a path to the files to use eg.
+
+makeItSo build --how=how2.php --what=config.xml
+
+
+
+
+
 For an example :
 
 cd source/test/example1
