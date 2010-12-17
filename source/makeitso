@@ -31,9 +31,9 @@
 		print "Usage: makeitso <task> <arguments and options>\n";
 		print "<task> defaults to main";
 		print "\noptions are prefixed with -- eg. --someSwitch=on\n";
-		print "\narguments are given values seperated by a space\n";
+		print "arguments are given values seperated by a space\n";
 		print "\n";
-		print "Reserved options are :\n"
+		print "Reserved options are :\n";
 		print "  --howFile=<PHP file of class descending from MakeItHowBase (defaults to MakeItHow.php in the current working directory)>\n";
 		print "  --whatFile=<xml file of config values (defaults to MakeItWhat.xml in the current working directory)>\n";
 		print "\n";

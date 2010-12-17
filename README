@@ -13,7 +13,7 @@ In a typical software development team environment, there is often the need to a
 * XML is great for configuration, but soon becomes difficult for programming (eg. Ant, Phing)
 * languages such as PHP are good for logic, but bad for configuration
 * configuration should be seperate from build logic, for easy access by non-technical people
-* While I must confess my preferred language is Ruby, it isn't as well known as PHP, or installed in as many environments
+* While I confess my preferred language is Ruby, it isn't as well known as PHP, or installed in as many environments
 
 Make It So features
 
@@ -42,15 +42,17 @@ providing a path to the files to use eg.
 
 makeItSo build --how=how2.php --what=config.xml
 
+You are also free to access arguments and options in your task code.
+eg. if the command line is 
 
+	makeItSo build dog cat --speed=fast
 
+you can access these parameters in your task code as 
 
-
-For an example :
-
-cd source/test/example1
-makeitso build
-
+$this->pars[1] or $this->task					// = 'build'
+$this->pars[2]												// = 'dog'
+$this->pars[3]												// = 'cat'
+$this->speed or $this->pars['speed']	// = 'fast'
 
 
 

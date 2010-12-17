@@ -49,7 +49,10 @@ class MakeItHowBase {
 	}	
 	
 	static function loadClass($pars = NULL) {
-		$pars ||= Console_Getargs_Combined::getArgs();
+		if (!$pars) {
+			$pars = Console_Getargs_Combined::getArgs();
+		}
+		print_r($pars);
 		$how = isset($pars['how']) ? $pars['how'] : 'MakeItHow.php';
 		if (file_exists($how = realpath($how))) {
 			print("Loading How file ".$how." ...\n");
@@ -64,7 +67,7 @@ class MakeItHowBase {
 	function __construct($pars = NULL) {
 		$this->pars = $pars || Console_Getargs_Combined::getArgs();
 		$this->workingPath = getcwd();
-		setSimpleItems(NULL,$pars);
+		$this->setSimpleItems(NULL,$pars);
 	}
 
 	function setSimpleItems($whatXml = NULL,$pars = NULL) {
