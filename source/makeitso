@@ -26,6 +26,17 @@
  *
  */
 
+	function printBanner() {
+		print "\n%%%%%%%%%%%%%%%%%%  MakeItSo  %%%%%%%%%%%%%%%%%%\n\n";
+		print "Usage: makeitso [options] <task> <how.php> <what.xml>\n";
+		print "\n[options] are freeform and entirely up to your application (none are defined by makeitso)\n\tbut must be prefixed with -- eg. --someSwitch=on\n"; 
+		print "<task> defaults to main";
+		print "<how.php> defaults to MakeItHow.php in the current working directory\n";
+		print "<what.xml> defaults to MakeItWhat.xml in the current working directory\n";
+		print "\n";
+	}
+
+
 	require_once 'MakeItHowBase.php';
 
 	// commandline examples :
@@ -37,8 +48,10 @@
 	//
 	// makeitso [options] <task> <how.php> <what.xml>
 
+	printBanner();
 	$how = MakeItHowBase::loadClass();
 	$how->loadWhat();
 	$how->callTask($how->task);
+	print "\n\n";
 
 ?>

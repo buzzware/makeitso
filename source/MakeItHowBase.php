@@ -27,112 +27,6 @@
 
 require_once 'Console_Getargs_Combined.php';
 
-class ConsoleUtils {
-
-	static function isarg($string) {
-		$p = strpos($string,'-');
-		return !($p===0);
-	}
-	static function getArgsOnly($args = NULL) {
-		if (!$args)
-			$args = $argv;
-		$args = array_filter($args,"ConsoleUtils::isarg");
-		return array_values($args);
-	}
-
-	static function isOption($string) {
-		$p = strpos($string,'--');
-		return ($p===0);
-	}
-	static function getOptionsOnly($args = NULL) {
-		if (!$args)
-			$args = $argv;
-		$opts = array_filter($args,"ConsoleUtils::isOption");
-		return array_values($opts);
-	}
-
-	static function split_option($option) {
-		$result = array();
-		preg_match_all("/--([^\s=]+)={0,1}(.*)/", $option, &$result);
-		array_shift($result);
-		return array($result[0][0],$result[1][0]);
-	}
-
-	static function optionsArrayToAssoc($args) {
-		$opts = array();
-		foreach($args as $a) {
-			$kv = ConsoleUtils::split_option($a);
-			$rhs = ($kv[1]==="" ? "true" : $kv[1]);
-			$opts[$kv[0]] = $rhs;
-		}
-		return $opts;
-	}
-	
-	/**
-	 * Parses $GLOBALS['argv'] for parameters and assigns them to an array.
-	 *
-	 * see http://php.net/manual/en/language.types.array.php
-	 *
-	 * Supports:
-	 * -e
-	 * -e <value>
-	 * --long-param
-	 * --long-param=<value>
-	 * --long-param <value>
-	 * <value>
-	 *
-	 * @param array $noopt List of parameters without values
-	 */
-	static function parseParameters($noopt = array()) {
-			$result = array();
-			$params = $GLOBALS['argv'];
-			// could use getopt() here (since PHP 5.3.0), but it doesn't work relyingly
-			reset($params);
-			while (list($tmp, $p) = each($params)) {
-					if ($p{0} == '-') {
-							$pname = substr($p, 1);
-							$value = true;
-							if ($pname{0} == '-') {
-									// long-opt (--<param>)
-									$pname = substr($pname, 1);
-									if (strpos($p, '=') !== false) {
-											// value specified inline (--<param>=<value>)
-											list($pname, $value) = explode('=', substr($p, 2), 2);
-									}
-							}
-							// check if next parameter is a descriptor or a value
-							$nextparm = current($params);
-							if (!in_array($pname, $noopt) && $value === true && $nextparm !== false && $nextparm{0} != '-') list($tmp, $value) = each($params);
-							$result[$pname] = $value;
-					} else {
-							// param doesn't belong to any option
-							$result[] = $p;
-					}
-			}
-			return $result;
-	}
-	
-	static function processedCmdLine() {
-		require_once 'Getargs.php';
-		$obj =& new Console_Getargs_Options();
-		$err = $obj->init(array());
-		$result = array();
-		$i = 1;
-		$args = $obj->args;
-		print_r($args);
-		foreach($args as $a) {
-			if (ConsoleUtils::isarg($a)) {
-				$result[$i++] = $a;
-			} else {
-				$kv = ConsoleUtils::split_option($a);
-				$rhs = ($kv[1]==="" ? true : $kv[1]);
-				$result[$kv[0]] = $rhs;
-			}
-		}
-		return $result;
-	}
-}
-
 /**
  * Description of MakeItHow
  *
@@ -155,42 +49,27 @@ class MakeItHowBase {
 	}	
 	
 	static function loadClass($_argv = NULL) {
-		//print_r($_SERVER);
-		//if (!$_argv)
-		//	$_argv = $_SERVER['argv'];
-		//print_r($_argv);
-		//$argsOnly = ConsoleUtils::getArgsOnly($_argv);
-		//print_r($argsOnly);
-		$pars = Console_Getargs_Combined::getArgs(); //ConsoleUtils::parseParameters();
-		print_r($pars);
+		$pars = Console_Getargs_Combined::getArgs();
+		//print_r($pars);
 		$howFile = isset($pars[2]) ? $pars[2] : 'MakeItHow.php';
-		print($howFile);
-		$howFile = realpath($howFile);
-		require_once $howFile;
-		$result = new MakeItHow();
-		//$result->argsOnly = $argsOnly;
-		//$result->optionsOnly = ConsoleUtils::getOptionsOnly($_argv);
-		$result->howFilePath = $howFile;
-		return $result;
+		//print($howFile);
+		if (file_exists($howFile = realpath($howFile))) {
+			print("Loading How file ".$howFile." ...\n");
+			require_once $howFile;
+			$result = new MakeItHow();
+			$result->howFilePath = $howFile;
+			return $result;
+		} else {
+			print("Error! How file ".$howFile." doesn't exist\n");
+		}
 	}
 
 	function __construct() {
 		$this->workingPath = getcwd();
-		$this->argsAndOptions = Console_Getargs_Combined::getArgs(); //ConsoleUtils::parseParameters();
-		print_r($this->argsAndOptions);
-//	$this->argsOnly = Array();
-//	$this->optionsOnly = Array();
-//	foreach ($argsandopts as $key => $value) {
-//		if (is_numeric($key)) {
-//			$this->argsOnly[$key] = $value;
-//		} else {
-//			$this->optionsOnly[$key] = $value;
-//		}
-//	}
+		$this->argsAndOptions = Console_Getargs_Combined::getArgs();
+		//print_r($this->argsAndOptions);
 		if (isset($this->argsAndOptions[1]))
 			$this->task = $this->argsAndOptions[1];
-//	print_r($this->argsOnly);
-//	print_r($this->optionsOnly);
 	}
 
 	function setSimpleItems() {
@@ -199,7 +78,6 @@ class MakeItHowBase {
 			$value = (string) $item[0];
 			$this->{$name} = $value;
 		}
-		//$a = $this->optionsOnly; //ConsoleUtils::optionsArrayToAssoc($this->optionsOnly);
 		foreach ($this->argsAndOptions as $key => $value) {
 			if (!is_numeric($key))
 				$this->{$key} = $value;
@@ -207,7 +85,7 @@ class MakeItHowBase {
 	}
 
 	function findXmlFile() {
-		$whatFilename = $this->argsAndOptions[3];
+		$whatFilename = isset($this->argsAndOptions[3]) ? $this->argsAndOptions[3] : null;
 		if ($whatFilename && file_exists($whatFilename = realpath($whatFilename))) {
 			return $whatFilename;
 		}
@@ -239,7 +117,12 @@ class MakeItHowBase {
 	}
 
 	function callTask($task) {
-		$this->{$task}();
+		if ($task && method_exists($this,$task)) {
+			print "Calling task ".$task." ...\n\n";
+			$this->{$task}();
+		} else {
+			print "Failed calling task ".$task." - task doesn't exist\n";
+		}
 	}
 	
 	function isWindows() {

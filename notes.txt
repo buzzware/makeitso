@@ -6,6 +6,21 @@ Some users have reported that the windows builds of PHP 5.3 are not able to open
 As a workaround, users can run the distributed phar with php -d phar.require_hash=0 go-pear.phar or download and use the http://pear.php.net/go-pear non-pharred version.
 
 
+$ pear package package.xml 
+Analyzing MakeItHowBase.php
+Analyzing Console_Getargs_Combined.php
+Warning: in Console_Getargs_Combined.php: class "Console_Getargs_Combined" not prefixed with package name "makeitso"
+Warning: in Console_Getargs_Combined.php: class "Console_Getargs_Options" not prefixed with package name "makeitso"
+Warning: in Console_Getargs_Combined.php: class "Console_Getargs" not prefixed with package name "makeitso"
+Warning: in MakeItHowBase.php: class "MakeItHowBase" not prefixed with package name "makeitso"
+Package makeitso-0.1.0.tgz done
+
+$ pear install ./makeitso-0.1.0.tgz
+pear install ./makeitso-0.1.0.tgz
+install ok: channel://__uri/makeitso-0.1.0
+
+$ pear uninstall __uri/makeitso-0.1.0
+
 make links from production locations to repos
 prod locations looked like :
 

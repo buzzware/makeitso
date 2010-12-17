@@ -1156,7 +1156,7 @@ class Console_Getargs_Combined {
 		$result = array();
 		$i = 1;
 		$args = $obj->args;
-		print_r($args);
+		//print_r($args);
 		foreach($args as $a) {
 			if (Console_Getargs_Combined::isarg($a)) {
 				$result[$i++] = $a;
