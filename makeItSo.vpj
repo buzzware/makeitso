@@ -67,6 +67,13 @@
 		</Folder>
 	</CustomFolders>
 	<Files AutoFolders="DirectoryView">
+		<Folder Name="../decimal-deploy">
+			<F
+				N="../decimal-deploy/*"
+				Recurse="1"
+				Refilter="0"
+				Excludes=".svn/"/>
+		</Folder>
 		<Folder Name="source">
 			<Folder Name="test">
 				<Folder Name="cmdline">

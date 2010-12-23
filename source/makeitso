@@ -28,6 +28,9 @@
 
 	function printBanner() {
 		print "\n%%%%%%%%%%%%%%%%%%  MakeItSo  %%%%%%%%%%%%%%%%%%\n\n";
+	}
+
+	function printUsage() {
 		print "Usage: makeitso <task> <arguments and options>\n";
 		print "<task> defaults to main";
 		print "\noptions are prefixed with -- eg. --someSwitch=on\n";

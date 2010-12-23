@@ -1130,7 +1130,7 @@ class Console_Getargs_Combined {
 
 	static function split_option($option) {
 		$result = array();
-		preg_match_all("/--([^\s=]+)={0,1}(.*)/", $option, &$result);
+		preg_match_all("/--([^\s=]+)={0,1}(.*)/", $option, $result);
 		array_shift($result);
 		return array($result[0][0],$result[1][0]);
 	}

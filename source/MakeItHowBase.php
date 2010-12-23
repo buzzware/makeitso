@@ -26,6 +26,7 @@
  */
 
 require_once 'Console_Getargs_Combined.php';
+require_once 'MakeItSoUtilities.php';
 
 /**
  * Description of MakeItHow
@@ -42,12 +43,6 @@ class MakeItHowBase {
 	var $task = 'main';	// task to execute
 	var $pars = array();	
 	
-	static function endswith($string, $test) {
-			$strlen = strlen($string);
-			$testlen = strlen($test);
-			if ($testlen > $strlen) return false;
-			return substr_compare($string, $test, -$testlen) === 0;
-	}	
 	
 	static function loadClass($pars = NULL) {
 		if (!$pars) {
@@ -130,13 +125,5 @@ class MakeItHowBase {
 		}
 	}
 	
-	function isWindows() {
-		return isset($_SERVER['OS']) && ($_SERVER['OS']=='Windows_NT');
-	}
-	
-	function isUnix() {
-		return !$this->isWindows();		// ok, its a hack. Otherwise I'd have to get all the codes for Mac, Linux, Solaris etc
-	}
-
 }
 ?>
