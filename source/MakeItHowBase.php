@@ -40,11 +40,7 @@ class MakeItHowBase {
 	var $task = 'main';		// task to execute
 	var $pars = array();	
 	
-	static function loadClass($pars = NULL) {
-		if (!$pars) {
-			$pars = Console_Getargs_Combined::getArgs();
-		}
-		$how = isset($pars['how']) ? $pars['how'] : 'MakeItHow.php';
+	static function loadClass($how,$pars) {
 		if (file_exists($how = realpath($how))) {
 			print("Loading How file ".$how." ...\n");
 			require_once $how;
@@ -100,16 +96,19 @@ class MakeItHowBase {
 		$filestring = file_get_contents($whatname); // load $whatname to $filestring
 		$whatXml = new SimpleXMLElement($filestring);
 		$this->setXmlSimpleItems($whatXml);
+		return $whatXml;
 	}
 
 	function callTask($task) {
+		$result = NULL;
 		if ($task && method_exists($this,$task)) {
 			print "Calling task ".$task." ...\n\n";
-			$this->{$task}();
+			$result = $this->{$task}();
 		} else {
 			print "Failed calling task ".$task." - task doesn't exist\n";
 			exit(1);			
 		}
+		return $result;
 	}
 
 	// override this to configure differently

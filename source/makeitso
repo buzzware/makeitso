@@ -56,7 +56,8 @@
 
 	printBanner();
 	$pars = Console_Getargs_Combined::getArgs();
-	$how = MakeItHowBase::loadClass($pars);
+	$howFilename = isset($pars['how']) ? $pars['how'] : 'MakeItHow.php';
+	$how = MakeItHowBase::loadClass($howFilename,$pars);
 	$how->configureWhat();
 	if ($how->task) 
 		$how->callTask($how->task);
