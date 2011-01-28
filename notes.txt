@@ -49,3 +49,56 @@ php makeitso --colour=green --path=/Users/gary/temp dir test/exampleWin/MakeItHo
 
 http://www.electricmonk.nl/log/2009/04/12/easy-pear-package-creation/
 
+
+
+Flex building in makeItSo
+-------------------------
+given project path, load .actionScriptProperties
+
+* from that can build all <applications>
+* get csp's from <compilerSourcePath>
+* get clp's from <libraryPath>
+
+
+*** This works 
+/Applications/Adobe\ Flash\ Builder\ 4/sdks/3.5.0/bin/amxmlc \
+-compiler.source-path 'src' \
+-compiler.source-path '../../flex_libs/actiontools3/source' \
+-compiler.source-path '../../flex_libs/dcflexlib/src' \
+-compiler.source-path '../../flex_libs/memorphic_xpath' \
+-compiler.library-path='/Applications/Adobe Flash Builder 4/sdks/3.5.0/frameworks/libs,/Applications/Adobe Flash Builder 4/sdks/3.5.0/frameworks/locale/en_US,,libs' \
+-locale en_US \
+-output dcConsole.swf -- src/dcConsole.mxml
+
+*** This works too
+
+/Applications/Adobe\ Flash\ Builder\ 4/sdks/3.5.0/bin/amxmlc \
+-compiler.source-path 'src' \
+-compiler.source-path '../../flex_libs/actiontools3/source' \
+-compiler.source-path '../../flex_libs/dcflexlib/src' \
+-compiler.source-path '../../flex_libs/memorphic_xpath' \
+-compiler.library-path '/Applications/Adobe Flash Builder 4/sdks/3.5.0/frameworks/libs' \
+-compiler.library-path '/Applications/Adobe Flash Builder 4/sdks/3.5.0/frameworks/locale/en_US' \
+-compiler.library-path 'libs' \
+-locale en_US \
+-output dcConsole.swf -- src/dcConsole.mxml
+
+
+*** This works too
+
+/Applications/Adobe\ Flash\ Builder\ 4/sdks/3.5.0/bin/amxmlc \
+-compiler.source-path='src,../../flex_libs/actiontools3/source,../../flex_libs/dcflexlib/src,../../flex_libs/memorphic_xpath' \
+-compiler.library-path='/Applications/Adobe Flash Builder 4/sdks/3.5.0/frameworks/libs,/Applications/Adobe Flash Builder 4/sdks/3.5.0/frameworks/locale/en_US,,libs' \
+-locale en_US \
+-output dcConsole.swf -- src/dcConsole.mxml
+
+The paths can be given as either :
+	-compiler.source-path 'aaa' -compiler.source-path 'bbb'			// strangely this doesn't seem to work with >1 paths containing spaces
+or 
+	-compiler.source-path='aaa,bbb'
+	
+Windows allows line continuation in batch files using ^	
+
+* Utilities
+- either static functions to call, or objects to create
+

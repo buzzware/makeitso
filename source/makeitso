@@ -55,9 +55,11 @@
 	// makeitso <task> <arguments and options>
 
 	printBanner();
-	$how = MakeItHowBase::loadClass();
-	$how->loadWhat();
-	$how->callTask($how->task);
+	$pars = Console_Getargs_Combined::getArgs();
+	$how = MakeItHowBase::loadClass($pars);
+	$how->configureWhat();
+	if ($how->task) 
+		$how->callTask($how->task);
 	print "\n\n";
 
 ?>

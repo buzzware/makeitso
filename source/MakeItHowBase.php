@@ -35,14 +35,10 @@ require_once 'MakeItSoUtilities.php';
  */
 class MakeItHowBase {
 
-	var $how;		// path to MakeItHow.php
-	var $what;	// path to MakeItWhat.xml
-	var $workingPath;		// current working path
-
-	var $whatXml;				// MakeItWhat.xml loaded root node
-	var $task = 'main';	// task to execute
+	var $how;							// path to MakeItHow.php
+	var $workingPath;			// current working path
+	var $task = 'main';		// task to execute
 	var $pars = array();	
-	
 	
 	static function loadClass($pars = NULL) {
 		if (!$pars) {
@@ -60,32 +56,36 @@ class MakeItHowBase {
 		}
 	}
 
+	static function getXpathValue($xml,$path) {
+		$nodes = $xml->content->xpath($path);		// get matching nodes
+		if (count($nodes)==0)
+			return null;
+		$node = $nodes[0];						// get first node
+		$result = (string) $node[0];	// get text of node
+		return $result;								// return text
+	}
+
 	function __construct($pars = NULL) {
-		$this->pars = $pars ? $pars : Console_Getargs_Combined::getArgs();
+		$this->pars = ($pars==NULL ? $pars : Console_Getargs_Combined::getArgs());
 		$this->workingPath = getcwd();
-		$this->setSimpleItems(NULL,$pars);
 	}
 
-	function setSimpleItems($whatXml = NULL,$pars = NULL) {
-		if ($whatXml) {
-			foreach ($whatXml->content->simpleItems->item as $item) {
-				$name = (string) $item['name'];
-				$value = (string) $item[0];
-				$this->{$name} = $value;
-			}
-		}
-		if ($pars) {
-			foreach ($pars as $key => $value) {
-				if (!is_numeric($key))
-					$this->{$key} = $value;
-			}
-			if (isset($this->pars[1]))
-				$this->task = $this->pars[1];		
+	function setXmlSimpleItems($whatXml) {
+		foreach ($whatXml->content->simpleItems->item as $item) {
+			$name = (string) $item['name'];
+			$value = (string) $item[0];
+			$this->{$name} = $value;
 		}
 	}
+	
+	function setCommandLineSimpleItems($pars) {
+		foreach ($pars as $key => $value) {
+			if (!is_numeric($key))
+				$this->{$key} = $value;
+		}
+	}	
 
-	function findXmlFile() {
-		$whatname = isset($this->pars['what']) ? $this->pars['what'] : null;
+	function findXmlFile($whatname) {
 		if ($whatname && file_exists($whatname = realpath($whatname))) {
 			return $whatname;
 		}
@@ -95,24 +95,11 @@ class MakeItHowBase {
 		return null;							// not found
 	}
 
-	function loadWhat($whatname = NULL) {
-		$this->what = $whatname ? $whatname : $this->findXmlFile();
-		if ($this->what) {
-			print "Loading what file ".$this->what." ...\n\n";
-			$filestring = file_get_contents($this->what); // load $whatname to $filestring
-			$this->whatXml = new SimpleXMLElement($filestring);
-			$this->setSimpleItems($this->whatXml,$this->pars);
-			return $this->whatXml;
-		}
-	}
-
-	function getXpathValue($path) {
-		$nodes = $this->whatXml->content->xpath($path);		// get matching nodes
-		if (count($nodes)==0)
-			return null;
-		$node = $nodes[0];						// get first node
-		$result = (string) $node[0];	// get text of node
-		return $result;								// return text
+	function loadWhatXml($whatname) {
+		print "Loading what file ".$whatname." ...\n\n";
+		$filestring = file_get_contents($whatname); // load $whatname to $filestring
+		$whatXml = new SimpleXMLElement($filestring);
+		$this->setXmlSimpleItems($whatXml);
 	}
 
 	function callTask($task) {
@@ -124,6 +111,16 @@ class MakeItHowBase {
 			exit(1);			
 		}
 	}
-	
+
+	// override this to configure differently
+	function configureWhat() {
+		if ($whatname = isset($this->pars['what']) ? $this->pars['what'] : null)
+			$what = $this->findXmlFile($whatname);
+		if ($what)
+			$this->loadWhatXml($what);
+		$this->setCommandLineSimpleItems($this->pars);
+		if (isset($this->pars[1]))
+			$this->task = $this->pars[1];		
+	}
 }
 ?>
