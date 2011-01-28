@@ -40,11 +40,11 @@ class MakeItHowBase {
 	var $task = 'main';		// task to execute
 	var $pars = array();	
 	
-	static function loadClass($how,$pars) {
+	static function loadClass($how) {
 		if (file_exists($how = realpath($how))) {
 			print("Loading How file ".$how." ...\n");
 			require_once $how;
-			$result = new MakeItHow($pars);
+			$result = new MakeItHow();
 			return $result;
 		} else {
 			print("Error! How file ".$how." doesn't exist\n");
@@ -61,10 +61,8 @@ class MakeItHowBase {
 		return $result;								// return text
 	}
 
-	function __construct($pars = NULL) {
-		$this->pars = ($pars==NULL ? $pars : Console_Getargs_Combined::getArgs());
-		$this->workingPath = getcwd();
-	}
+	//function __construct() {
+	//}
 
 	function setXmlSimpleItems($whatXml) {
 		foreach ($whatXml->content->simpleItems->item as $item) {
@@ -112,7 +110,9 @@ class MakeItHowBase {
 	}
 
 	// override this to configure differently
-	function configureWhat() {
+	function configureWhat($pars) {
+		$this->pars = ($pars!=NULL ? $pars : Console_Getargs_Combined::getArgs());
+		$this->workingPath = getcwd();
 		if ($whatname = isset($this->pars['what']) ? $this->pars['what'] : null)
 			$what = $this->findXmlFile($whatname);
 		if ($what)
