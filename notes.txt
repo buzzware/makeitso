@@ -45,7 +45,9 @@ uninstall ok: channel://__uri/makeitso-0.0.1
 
 Y:\repos\makeItSo\source>"C:\Program Files\PHP\php.exe" makeitso --colour=green --path=C:\ dir test\exampleWin\MakeItHow.php test\exampleWin\MakeItWhat.xml
 
-php makeitso --colour=green --path=/Users/gary/temp dir test/exampleWin/MakeItHow.php test/exampleWin/MakeItWhat.xml
+# php makeitso --colour=green --path=/Users/gary/temp dir test/exampleWin/MakeItHow.php test/exampleWin/MakeItWhat.xml
+php makeitso dir --colour=green --path=/Users/gary/temp --how=test/exampleWin/MakeItHow.php --what=test/exampleWin/MakeItWhat.xml
+
 
 http://www.electricmonk.nl/log/2009/04/12/easy-pear-package-creation/
 

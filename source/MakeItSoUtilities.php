@@ -103,5 +103,46 @@ function searchReplaceFiles($find,$replace,$filepattern) {
 	}
 }
 
+function ensureSlash($path){
+	if (!$path)
+		return $path;
+	$slash_type = (strpos($path, '\\')===0) ? 'win' : 'unix'; 
+	$last_char = substr($path, strlen($path)-1, 1);
+	if ($last_char != '/' and $last_char != '\\') {
+			// no slash:
+			$path .= ($slash_type == 'win') ? '\\' : '/';
+	}
+	return $path;
+}
+
+function pathParent($path) {
+	if ($path=='/')
+		return NULL;
+	if ($path=='.')
+		return NULL;
+	$path = dirname($path);
+	if ($path=='.')
+		return NULL;
+	return $path;	
+}
+
+function pathExists($path) {
+	return file_exists($path) || is_dir($path);
+}
+
+function findFileUpwards($findPath,$startPath=NULL) {
+	if (!$startPath)
+		$startPath = getcwd();
+	$currPath = ensureSlash(realpath($startPath));
+	
+	while ($currPath && !($testPathExists = pathExists($testPath = $currPath.$findPath))) {
+		$currPath = ensureSlash(pathParent($currPath));
+	}
+	return $currPath && $testPathExists ? $testPath : NULL;
+}
+
+function hostName() {
+	return gethostbyaddr('127.0.0.1');
+}
 
 ?>
