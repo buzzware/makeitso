@@ -25,14 +25,6 @@
  *
  */
 
-
-function endsWith($string, $test) {
-		$strlen = strlen($string);
-		$testlen = strlen($test);
-		if ($testlen > $strlen) return false;
-		return substr_compare($string, $test, -$testlen) === 0;
-}	
-
 function isWindows() {
 	return isset($_SERVER['OS']) && ($_SERVER['OS']=='Windows_NT');
 }
@@ -143,6 +135,32 @@ function findFileUpwards($findPath,$startPath=NULL) {
 
 function hostName() {
 	return gethostbyaddr('127.0.0.1');
+}
+
+//function endsWith($string, $test) {
+//    $strlen = strlen($string);
+//    $testlen = strlen($test);
+//    if ($testlen > $strlen) return false;
+//    return substr_compare($string, $test, -$testlen) === 0;
+//}
+
+function startsWith($haystack, $needle, $case=true) {
+	$length = strlen($needle);
+	$ss = substr($haystack, 0, $length);
+	if ($case)
+		return strcmp($ss,$needle);
+	else
+		return strcasecmp($ss,$needle);
+}
+
+function endsWith($haystack, $needle, $case=true) {
+	$length = strlen($needle);
+	$start =  $length *-1; //negative
+	$ss = substr($haystack, $start, $length);
+	if ($case)
+		return strcmp($ss,$needle);
+	else
+		return strcasecmp($ss,$needle);
 }
 
 ?>

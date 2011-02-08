@@ -53,7 +53,7 @@ class MakeItHowBase {
 	}
 
 	static function getXpathValue($xml,$path) {
-		$nodes = $xml->content->xpath($path);		// get matching nodes
+		$nodes = $xml->xpath($path);		// get matching nodes
 		if (count($nodes)==0)
 			return null;
 		$node = $nodes[0];						// get first node
@@ -65,7 +65,7 @@ class MakeItHowBase {
 	//}
 
 	function setXmlSimpleItems($whatXml) {
-		foreach ($whatXml->content->simpleItems->item as $item) {
+		foreach ($whatXml->simpleItems->item as $item) {
 			$name = (string) $item['name'];
 			$value = (string) $item[0];
 			$this->{$name} = $value;
@@ -121,5 +121,12 @@ class MakeItHowBase {
 		if (isset($this->pars[1]))
 			$this->task = $this->pars[1];		
 	}
+	
+	// override this to call (or not call) default task differently
+	function callDefaultTask() {
+		if ($this->task)
+			$this->callTask($this->task);
+	}
+
 }
 ?>
