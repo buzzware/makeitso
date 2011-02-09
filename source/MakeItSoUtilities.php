@@ -47,12 +47,18 @@ function execSafe($command) {
 	return $result;
 }
 
+function svn_cmd($command,$sourceServer,$sourceUrl,$destPath,$options = NULL) {
+	if (!$options)
+		$options = '';
+	$cmd = "svn ".$command.' "'.$sourceServer.$sourceUrl.'" "'.$destPath.'" '.$options;
+	return $cmd;
+}
+
 function svn($command,$sourceServer,$sourceUrl,$destPath,$options = NULL) {
 	if (!$options)
 		$options = '';
 	print("svn ".$command." ".$options." ".$sourceUrl." => ".$destPath."\n");
-	$options = $options.' --username prod --password kkfgt';
-	$cmd = "svn ".$command." ".$sourceServer.$sourceUrl." \"".$destPath."\" ".$options;
+	$cmd = svn_cmd($command,$sourceServer,$sourceUrl,$destPath,$options);
 	$result = execSafe($cmd);
 	print($result."\n\n");
 	return $result;
@@ -94,6 +100,16 @@ function searchReplaceFiles($find,$replace,$filepattern) {
 			fileFromString($file,$content);
 	}
 }
+
+function fileReplaceTokens($filename,$tokens) {
+	$content = fileToString($filename);
+	
+	foreach ($tokens as $key => $value) {
+		$content = str_replace('{{'.$key.'}}',$value,$content);
+	}
+	fileFromString($file,$content);
+}
+
 
 function ensureSlash($path){
 	if (!$path)
@@ -148,9 +164,9 @@ function startsWith($haystack, $needle, $case=true) {
 	$length = strlen($needle);
 	$ss = substr($haystack, 0, $length);
 	if ($case)
-		return strcmp($ss,$needle);
+		return strcmp($ss,$needle)==0;
 	else
-		return strcasecmp($ss,$needle);
+		return strcasecmp($ss,$needle)==0;
 }
 
 function endsWith($haystack, $needle, $case=true) {
@@ -158,9 +174,71 @@ function endsWith($haystack, $needle, $case=true) {
 	$start =  $length *-1; //negative
 	$ss = substr($haystack, $start, $length);
 	if ($case)
-		return strcmp($ss,$needle);
+		return strcmp($ss,$needle)==0;
 	else
-		return strcasecmp($ss,$needle);
+		return strcasecmp($ss,$needle)==0;
 }
+
+function setProperty($object, $property, $value) {
+	if (is_array($object))
+		$object[$property] = $value;
+	else
+		$object->{$property} = $value;
+	return $value;
+}
+
+function getProperty($object, $property) {
+	if (is_array($object))
+		return $object[$property];
+	else
+		return $object->{$property};
+}
+
+/**
+ *
+ * PHP versions 5.1.4
+ *
+ * George A. Papayiannis
+ *
+ * This class provides the magic functions needed to create
+ * a dynamic object.  Subclasses would extend this object
+ * and call the constructor with a parsed array.  See
+ * g_url_decode.class.php for an example of creating a
+ * dynamic object from the URL query string.
+ *
+ */
+
+class DynamicObject {
+	private $param = array();
+
+	public function __construct($init) {
+			$this->param = get_object_vars($init);
+	}
+
+	private function __get($name) {
+		if (isset($this->param[$name]))
+			return $this->param[$name];
+		else
+			return NULL;
+	}
+
+	private function __set($name, $val) {
+		$this->param[$name] = $val;
+	}
+
+	private function __isset($name) {
+		return isset($this->param[$name]);
+	}
+
+	private function __unset($name) {
+		unset($this->param[$name]);
+	}
+
+	private function __call($name, $var) {
+			// add code to simulate function call
+			// return TRUE for success
+	}
+}
+
 
 ?>

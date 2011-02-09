@@ -79,6 +79,15 @@
 				<Folder Name="cmdline">
 					<F N="source/test/cmdline/dumpargs.php"/>
 				</Folder>
+				<Folder Name="deploy">
+					<Folder Name="deploy">
+						<F
+							N="source/test/deploy/deploy/*"
+							Recurse="1"
+							Refilter="0"
+							Excludes=".svn/"/>
+					</Folder>
+				</Folder>
 			</Folder>
 			<F N="source/makeitso"/>
 		</Folder>

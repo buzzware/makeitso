@@ -38,7 +38,8 @@ class MakeItHowBase {
 	var $how;							// path to MakeItHow.php
 	var $workingPath;			// current working path
 	var $task = 'main';		// task to execute
-	var $pars = array();	
+	var $pars = array();
+	var $whatXml;					// most recent xml loaded by loadWhatXml
 	
 	static function loadClass($how) {
 		if (file_exists($how = realpath($how))) {
@@ -52,11 +53,23 @@ class MakeItHowBase {
 		}
 	}
 
-	static function getXpathValue($xml,$path) {
-		$nodes = $xml->xpath($path);		// get matching nodes
+	function getXpathNodes($path,$xml=NULL) {
+		if (!$xml)
+			$xml = $this->whatXml;
+		return $xml->xpath($path);		// get matching nodes
+	}
+
+	function getXpathNode($path,$xml=NULL) {
+		$nodes = $this->getXpathNodes($path,$xml);
 		if (count($nodes)==0)
 			return null;
-		$node = $nodes[0];						// get first node
+		return $nodes[0];						// get first node
+	}
+
+	function getXpathValue($path,$xml=NULL) {
+		$node = $this->getXpathNode($path,$xml);
+		if (!$node)
+			return NULL;
 		$result = (string) $node[0];	// get text of node
 		return $result;								// return text
 	}
@@ -64,7 +77,27 @@ class MakeItHowBase {
 	//function __construct() {
 	//}
 
+
+	static function setPropertiesFromXmlItems($object,$xmlNode,$selectedProperty=NULL,$includeFlatProperties=true) {
+		foreach ($xmlNode->item as $item) {
+			$name = (string) $item['name'];
+			$value = (string) $item[0];
+			$sepPos = strpos($name,'/');
+			if ($sepPos!=false) {							// subproperty
+				$topLevel = substr($name,0,$sepPos);
+				$name = substr($name,$sepPos+1);
+				if ($topLevel==$selectedProperty)
+					$object->{$name} = $value;	//setProperty ($object,$name,$value);
+			} else {													// flat property
+				if ($includeFlatProperties)
+					$object->{$name} = $value;	//setProperty ($object,$name,$value);
+			}
+		}
+		return $object;
+	}
+
 	function setXmlSimpleItems($whatXml) {
+		$this->setPropertiesFromXmlItems($this,$whatXml->simpleItems);
 		foreach ($whatXml->simpleItems->item as $item) {
 			$name = (string) $item['name'];
 			$value = (string) $item[0];
@@ -94,6 +127,7 @@ class MakeItHowBase {
 		$filestring = file_get_contents($whatname); // load $whatname to $filestring
 		$whatXml = new SimpleXMLElement($filestring);
 		$this->setXmlSimpleItems($whatXml);
+		$this->whatXml = $whatXml;
 		return $whatXml;
 	}
 
