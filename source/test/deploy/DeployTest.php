@@ -11,8 +11,6 @@ function createHow($pars,$howFilename) {
 
 class DeployTest extends PHPUnit_Framework_TestCase {
 
-
-
 	protected function setUp() {
 		//$this->what = new TestWhat();
 	}
@@ -21,43 +19,50 @@ class DeployTest extends PHPUnit_Framework_TestCase {
 
 	}
 
-	// array("foo" => "bar", 12 => true);
-	public function testSmoke() {
-		$this->assertEquals(true,true);
-		$this->assertEquals(true,true);
+	public function testExpandConfigTokens() {
+		$input = array('a' => 'AAA', 'b' => 'BBB{{a}}BBBB');
+		$output = expandConfigTokens($input);
+		$this->assertEquals(
+			array('a' => 'AAA', 'b' => 'BBBAAABBBB'),
+			$output
+		);
+	}
 
-		
+	// array("foo" => "bar", 12 => true);
+	public function testGetProjects() {
 		$pars = array('what' => 'deploy/deploy.xml', 'deployment' => 'prod');
 		$how = createHow($pars,'deploy/deploy.php');
 		$how->preventExecCommand = true;
-		$how->callTask('deploy');
+		$how->callTask('getProjects');
 		$this->assertType('SimpleXMLElement',$how->deploymentXml);
-
-		//$this->assertEquals(
-		//	'svn checkout "svn://sdsds/branches/oscar/110202-SomeNewThing/projects/system" "{{EXAMPLE_PRIVATE}}/system"  --username fred --password dfgdfgdfg -r 2001',
-		//	$how->execCommands[0]
-		//);
 
 		$this->assertEquals(
 			array(
-				'svn checkout "svn://svn.example.com/var/svn-repos/example/branches/releases/1.23/projects/system" "{{EXAMPLE_PRIVATE}}/system" --username fred --password dfgdfgdfg --revision 2001',
-				'svn checkout "svn://svn.example.com/var/svn-repos/example/branches/releases/1.23/projects/sqlScripts" "{{EXAMPLE_PRIVATE}}/sqlScripts" --username fred --password dfgdfgdfg --revision 2001',
-				'svn checkout "svn://svn.example.com/var/svn-repos/example/branches/releases/1.23/projects/dcwealth" "{{EXAMPLE_WEB}}/dcwealth" --username fred --password dfgdfgdfg --revision 2001',
-				'svn checkout "svn://svn.example.com/var/svn-repos/exampleexe/trunk" "{{EXAMPLE_PRIVATE}}/exampleexe" --username john --password 123123 --revision HEAD'
+				'svn checkout "svn://svn.example.com/var/svn-repos/example/branches/releases/1.23/projects/system" "C:\Decimal\system" --username fred --password dfgdfgdfg --revision 2001',
+				'svn checkout "svn://svn.example.com/var/svn-repos/example/branches/releases/1.23/projects/sqlScripts" "C:\Decimal\sqlScripts" --username fred --password dfgdfgdfg --revision 2001',
+				'svn checkout "svn://svn.example.com/var/svn-repos/example/branches/releases/1.23/projects/dcwealth" "C:\Inetpub\wwwroot\dcwealth" --username fred --password dfgdfgdfg --revision 2001',
+				'svn checkout "svn://svn.example.com/var/svn-repos/exampleexe/trunk" "C:\Decimal\exampleexe" --username john --password 123123 --revision HEAD'
 			),
 			$how->execCommands
 		);
+	}
 
-		/*
-		$this->what->load('whatExample1.xml');
-		$this->assertType('SimpleXMLElement',$this->what->xml);
-		$this->assertEquals('/var/www/mysite',$this->what->getXpathValue('website/path'));
-		$this->assertEquals('red',$this->what->colour);
-		$this->assertEquals('medium',$this->what->size);
-		$this->assertEquals(null,$this->what->shape);
-		$this->assertEquals(null,$this->what->getXpathValue('somepath'));
-		$this->assertEquals(null,$this->what->getXpathValue('some/wrong/path'));
-		*/
+	public function testInstallProjectsUnix() {
+		$pars = array('what' => 'deploy/deploy.xml', 'deployment' => 'prod');
+		$how = createHow($pars,'deploy/deploy.php');
+		$how->preventExecCommand = true;
+		$how->callTask('installProjects');
+		$this->assertType('SimpleXMLElement',$how->deploymentXml);
+
+		$this->assertEquals(
+			array(
+				'cd "C:\Decimal\system"; makeitso install.php',
+				'cd "C:\Decimal\sqlScripts"; makeitso install.php',
+				'cd "C:\Inetpub\wwwroot\dcwealth"; makeitso install.php',
+				'cd "C:\Decimal\exampleexe"; makeitso install.php'
+			),
+			$how->execCommands
+		);
 	}
 
 }

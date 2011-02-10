@@ -74,10 +74,6 @@ class MakeItHowBase {
 		return $result;								// return text
 	}
 
-	//function __construct() {
-	//}
-
-
 	static function setPropertiesFromXmlItems($object,$xmlNode,$selectedProperty=NULL,$includeFlatProperties=true) {
 		foreach ($xmlNode->item as $item) {
 			$name = (string) $item['name'];
@@ -98,11 +94,6 @@ class MakeItHowBase {
 
 	function setXmlSimpleItems($whatXml) {
 		$this->setPropertiesFromXmlItems($this,$whatXml->simpleItems);
-		foreach ($whatXml->simpleItems->item as $item) {
-			$name = (string) $item['name'];
-			$value = (string) $item[0];
-			$this->{$name} = $value;
-		}
 	}
 	
 	function setCommandLineSimpleItems($pars) {

@@ -194,6 +194,33 @@ function getProperty($object, $property) {
 		return $object->{$property};
 }
 
+/*
+This is not a complete solution as it won't recurse forever expanding tokens that contain tokens.
+
+A proper solution will probably involve iterating through token instances, replacing, watching for none to replace,
+and tokens that aren't defined.
+*/
+function expandConfigTokens($config) {
+	$result = is_array($config) ? $config : get_object_vars($config);
+
+	foreach ($result as $configKey => $configValue) {
+		if (!is_string($configValue))
+			continue;
+		// if $configValue contains {{configKey}} then exception
+		// for all properties besides this one, replace {{key}} with $value
+		foreach ($result as $tokenKey => $tokenValue) {
+			if ($tokenKey==$configKey)
+				continue;
+			if (!(is_string($tokenValue) || is_int($tokenValue) || is_bool($tokenValue) || is_float($tokenValue)))
+				continue;
+			$result[$configKey] = str_replace('{{'.$tokenKey.'}}',(string) $tokenValue,(string) $result[$configKey]);
+		}
+	}
+	if (!is_array($config))
+		$result = new DynamicObject($result);
+	return $result;
+}
+
 /**
  *
  * PHP versions 5.1.4
@@ -208,7 +235,23 @@ function getProperty($object, $property) {
  *
  */
 
-class DynamicObject {
+class DynamicObject extends ArrayObject {
+
+	public function __get($name) {
+		if ($name=='revision')
+			print('revision');
+		if (isset($this[$name]))
+			return $this[$name];
+		else
+			return NULL;
+	}
+
+	public function __set($name, $val) {
+		return $this[$name] = $val;
+	}
+}
+/*
+class DynamicObject implements IteratorAggregate {
 	private $param = array();
 
 	public function __construct($init) {
@@ -238,7 +281,12 @@ class DynamicObject {
 			// add code to simulate function call
 			// return TRUE for success
 	}
-}
 
+	// for IteratorAggregate interface
+	public function getIterator() {
+		return $this->param->getIterator();
+	}
+}
+*/
 
 ?>

@@ -79,7 +79,8 @@ class MakeItHow extends MakeItHowBase {
 			$options
 		);
 	}
-	function deploy() {
+
+	function getProjects() {
 		$this->deploymentXml = $this->getXpathNode("deployments/deployment[@name='".$this->pars['deployment']."']");
 
 		$projects = $this->getXpathValue("item[@name='projects']",$this->deploymentXml);
@@ -94,10 +95,63 @@ class MakeItHow extends MakeItHowBase {
 			$this->setPropertiesFromXmlItems($config,$this->deploymentXml,$project_name);
 			// $config should have all values now to extract from svn
 
+			$config = expandConfigTokens($config);
+
 			$this->execCommand($this->svnCheckoutCmd($config));
 		}
 	}
-	 
 
+	function stopExes() {
+		print('!!! stopExes() is not implemented yet');
+	}
+
+	function maintenancePageOn() {
+		print('!!! maintenancePageOn() is not implemented yet');
+	}
+
+	function maintenancePageOff() {
+		print('!!! maintenancePageOff() is not implemented yet');
+	}
+
+	protected function installProjectCmd($config) {
+		$result = isWindows() ? 'cd /d' : 'cd';
+		$result = $result.' "'.$config['destination'].'"; makeitso install.php';
+		return $result;
+	}
+
+	function installProjects() {
+		$this->deploymentXml = $this->getXpathNode("deployments/deployment[@name='".$this->pars['deployment']."']");
+
+		$projects = $this->getXpathValue("item[@name='projects']",$this->deploymentXml);
+		if (array_key_exists('projects',$this->pars))
+			$projects = $this->pars['projects'];
+
+		$arrProjects = split(',',$projects);
+		foreach ($arrProjects as $project_name) {
+			$projectXml = $this->getXpathNode("projects/project[@name='".$project_name."']");
+			$config = new DynamicObject($this);
+			$this->setPropertiesFromXmlItems($config,$projectXml);
+			$this->setPropertiesFromXmlItems($config,$this->deploymentXml,$project_name);
+			// $config should have all values now to extract from svn
+
+			$config = expandConfigTokens($config);
+
+			$this->execCommand($this->installProjectCmd($config));
+		}
+	}
+
+	function restartWebserver() {
+		print('!!! restartWebserver() is not implemented yet');
+	}
+
+	function deploy() {
+		stopExes();
+		maintenancePageOn();
+		getProjects();
+		installProjects();
+		maintenancePageOff();
+		restartWebserver();
+	}
+	 
 }
 ?>
