@@ -74,26 +74,8 @@ class MakeItHowBase {
 		return $result;								// return text
 	}
 
-	static function setPropertiesFromXmlItems($object,$xmlNode,$selectedProperty=NULL,$includeFlatProperties=true) {
-		foreach ($xmlNode->item as $item) {
-			$name = (string) $item['name'];
-			$value = (string) $item[0];
-			$sepPos = strpos($name,'/');
-			if ($sepPos!=false) {							// subproperty
-				$topLevel = substr($name,0,$sepPos);
-				$name = substr($name,$sepPos+1);
-				if ($topLevel==$selectedProperty)
-					$object->{$name} = $value;	//setProperty ($object,$name,$value);
-			} else {													// flat property
-				if ($includeFlatProperties)
-					$object->{$name} = $value;	//setProperty ($object,$name,$value);
-			}
-		}
-		return $object;
-	}
-
 	function setXmlSimpleItems($whatXml) {
-		$this->setPropertiesFromXmlItems($this,$whatXml->simpleItems);
+		setPropertiesFromXmlItems($this,$whatXml->simpleItems);
 	}
 	
 	function setCommandLineSimpleItems($pars) {

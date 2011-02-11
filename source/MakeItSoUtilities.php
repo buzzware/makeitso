@@ -101,6 +101,11 @@ function searchReplaceFiles($find,$replace,$filepattern) {
 	}
 }
 
+function rmGlob($pattern) {
+	foreach (glob($pattern) as $file)
+		unlink($file);
+}
+
 function fileReplaceTokens($filename,$tokens) {
 	$content = fileToString($filename);
 	
@@ -110,6 +115,10 @@ function fileReplaceTokens($filename,$tokens) {
 	fileFromString($file,$content);
 }
 
+function copy_properties($source,$dest) {
+	foreach ($source as $key => $value)
+		$dest->{$key} = $source->{$key};
+}
 
 function ensureSlash($path){
 	if (!$path)
@@ -133,6 +142,15 @@ function pathParent($path) {
 		return NULL;
 	return $path;	
 }
+
+function insertSubExtension($filename,$subext) {
+	$dotPos = strrpos($filename,'.');
+	$basename = substr($filename,0,$dotPos);
+	$ext = substr($filename,$dotPos);
+	$result = $basename.'.'.$subext.$ext;
+	return $result;
+}
+
 
 function pathExists($path) {
 	return file_exists($path) || is_dir($path);
@@ -220,6 +238,49 @@ function expandConfigTokens($config) {
 		$result = new DynamicObject($result);
 	return $result;
 }
+
+function setPropertiesFromXmlItems($object,$xmlNode,$selectedProperty=NULL,$includeFlatProperties=true) {
+	foreach ($xmlNode->item as $item) {
+		$name = (string) $item['name'];
+		$value = (string) $item[0];
+		$sepPos = strpos($name,'/');
+		if ($sepPos!=false) {							// subproperty
+			$topLevel = substr($name,0,$sepPos);
+			$name = substr($name,$sepPos+1);
+			if ($topLevel==$selectedProperty)
+				$object->{$name} = $value;	//setProperty ($object,$name,$value);
+		} else {													// flat property
+			if ($includeFlatProperties)
+				$object->{$name} = $value;	//setProperty ($object,$name,$value);
+		}
+	}
+	return $object;
+}
+
+function loadSimpleItems($filename,$object=NULL) {
+	$filestring = file_get_contents($filename); // load $whatname to $filestring
+	$fileXml = new SimpleXMLElement($filestring);
+	if (!$object)
+		$object = new DynamicObject();
+	setPropertiesFromXmlItems($object,$fileXml->simpleItems);
+	return $object;
+}
+
+function loadCascadingXmlFileItems($object,$filename,$machine_name = NULL) {
+	$fn = $filename;
+	if (file_exists($fn))
+		loadSimpleItems($fn,$object);
+	if ($machine_name) {
+		$fn = insertSubExtension($filename,$machine_name);
+		if (file_exists($fn))
+			loadSimpleItems($fn,$object);
+	}
+	$fn = insertSubExtension($filename,'local');
+	if (file_exists($fn))
+		loadSimpleItems($fn,$object);
+	return $object;
+}
+
 
 /**
  *
