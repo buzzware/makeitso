@@ -32,6 +32,9 @@ ln -s /Users/gary/repos/makeItSo/source/makeitso /usr/local/bin/makeitso
 
 wget --no-check-certificate http://github.com/buzzware/makeitso/raw/master/releases/makeitso-0.2.1.tgz
 
+wget --no-check-certificate https://github.com/buzzware/makeitso/raw/master/releases/makeitso-0.5.1.tgz
+
+sudo pear upgrade https://github.com/buzzware/makeitso/raw/master/releases/makeitso-0.5.1.tgz
 
 Windows :
 

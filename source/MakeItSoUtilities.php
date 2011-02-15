@@ -279,10 +279,17 @@ function setProperty($object, $property, $value) {
 }
 
 function getProperty($object, $property) {
-	if (is_array($object))
-		return $object[$property];
-	else
-		return $object->{$property};
+	if (is_array($object)) {
+		if (isset($object[$property]))
+			return $object[$property];
+		else
+			return NULL;
+	} else {
+		if (isset($object->{$property}))
+			return $object->{$property};
+		else
+			return NULL;
+	}
 }
 
 /*

@@ -116,17 +116,59 @@ class MakeItHowBase {
 		return $result;
 	}
 
+	// In $pars, there are values indexed by options like 
+	// 'what' => 'config.xml' 
+	// AND arguments indexed by their position eg.
+	// 1 => 'sometaskname'
+	// This method implements a pattern of
+	// [how.php] [what.xml] [task]
+	// where all are optional but if given they should be in the order listed.
+	// It also assumes how files end in .php (case insensitive so .PHP is supported) and
+	// what files end in xml.
+	// This method can be overriden for implementing a custom strategy
+	function setOptionsFromArguments($pars) {
+		$how = NULL;
+		$what = NULL;
+		$task = NULL;
+		for ($i=1; $i<=3; $i++) {
+			$option = getProperty($pars,$i);
+			if (!$option)
+				continue;
+			if (!$how && endsWith($option,'.php',false)) {
+				$how = $option;
+			} else if (!$what && endsWith($option,'.xml',false)) {
+				$what = $option;
+			} else if (!$task) {
+				$task = $option;
+			}
+		}
+		if ($how && (!isset($pars['how']) || !$pars['how']))
+			$pars['how'] = $how;
+		if ($what && (!isset($pars['what']) || !$pars['what']))
+			$pars['what'] = $what;
+		if ($task && (!isset($pars['task']) || !$pars['task']))
+			$pars['task'] = $task;
+		return $pars;
+	}
+
+
 	// override this to configure differently
 	function configureWhat($pars) {
-		$this->pars = ($pars!=NULL ? $pars : Console_Getargs_Combined::getArgs());
 		$this->workingPath = getcwd();
-		if ($whatname = isset($this->pars['what']) ? $this->pars['what'] : null)
+
+		if ($pars===NULL)
+			$pars = Console_Getargs_Combined::getArgs();
+		$this->pars = $pars;															// store unmodified pars
+		
+		$pars = $this->setOptionsFromArguments($pars);		// modify $pars for use below
+
+		$what = NULL;
+		if ($whatname = isset($pars['what']) ? $pars['what'] : null)
 			$what = $this->findXmlFile($whatname);
 		if ($what)
 			$this->loadWhatXml($what);
-		$this->setCommandLineSimpleItems($this->pars);
-		if (isset($this->pars[1]))
-			$this->task = $this->pars[1];		
+
+		$this->setCommandLineSimpleItems($pars);					// set wuth $pars
 	}
 	
 	// override this to call (or not call) default task differently
