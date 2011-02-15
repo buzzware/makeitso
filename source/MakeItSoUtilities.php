@@ -25,6 +25,65 @@
  *
  */
 
+
+class DynamicObject extends ArrayObject {
+
+	public function __get($name) {
+		if ($name=='revision')
+			print('revision');
+		if (isset($this[$name]))
+			return $this[$name];
+		else
+			return NULL;
+	}
+
+	public function __set($name, $val) {
+		return $this[$name] = $val;
+	}
+}
+
+interface IException {
+
+		// from http://php.net/manual/en/language.exceptions.php
+
+    /* Protected methods inherited from Exception class */
+    public function getMessage();                 // Exception message
+    public function getCode();                    // User-defined Exception code
+    public function getFile();                    // Source filename
+    public function getLine();                    // Source line
+    public function getTrace();                   // An array of the backtrace()
+    public function getTraceAsString();           // Formated string of trace
+
+    /* Overrideable methods inherited from Exception class */
+    public function __toString();                 // formated string for display
+    public function __construct($message = null, $code = 0);
+}
+
+abstract class CustomException extends Exception implements IException {
+
+    protected $message = 'Unknown exception';     // Exception message
+    private   $string;                            // Unknown
+    protected $code    = 0;                       // User-defined exception code
+    protected $file;                              // Source filename of exception
+    protected $line;                              // Source line of exception
+    private   $trace;                             // Unknown
+
+    public function __construct($message = null, $code = 0)
+    {
+        if (!$message) {
+            throw new $this('Unknown '. get_class($this));
+        }
+        parent::__construct($message, $code);
+    }
+
+    public function __toString()
+    {
+        return get_class($this) . " '{$this->message}' in {$this->file}({$this->line})\n"
+                                . "{$this->getTraceAsString()}";
+    }
+}
+
+
 function isWindows() {
 	return isset($_SERVER['OS']) && ($_SERVER['OS']=='Windows_NT');
 }
@@ -33,17 +92,16 @@ function isUnix() {
 	return !isWindows();		// ok, its a hack. Otherwise I'd have to get all the codes for Mac, Linux, Solaris etc
 }
 
+class ExecException extends CustomException {}
+
 // Executes the given command and returns the result as a string, even if returned as array
 // If the exit code of the command is non-zero, it will die with the result as a message
 function execSafe($command) {
 	exec($command,$result,$retcode);
 	if (is_array($result))
 		$result = join("\n", $result);
-	if ($retcode) {
-		if (!$result)
-			$result = $command." failed.";
-		die($result);
-	}
+	if ($retcode)
+		throw new ExecException($command." failed (exit code ".$retcode.")",$retcode);
 	return $result;
 }
 
@@ -69,6 +127,7 @@ function rmWildcard($mask) {
 }
 
 function fileToString($filename) {
+	/*
 	$fh = fopen($filename,"rb") or die("can't open file");
 	$fs = filesize($filename);
 	if ($fs==0)
@@ -76,6 +135,8 @@ function fileToString($filename) {
 	$result = fread($fh,$fs);
 	fclose($fh);
 	return $result;
+	*/
+	return file_get_contents($filename);
 }
 
 function fileFromString($filename,$content) {
@@ -98,6 +159,18 @@ function searchReplaceFiles($find,$replace,$filepattern) {
 			$content = fileToString($file);
 			$content = str_replace($find,$replace,$content);
 			fileFromString($file,$content);
+	}
+}
+
+function expandTokensInFiles($tokenValues,$filepattern) {
+	print "expandTokensInFiles in ".$filepattern."\n";
+	$files = glob($filepattern);
+	foreach ($files as $file) {
+		$content = fileToString($file);
+		foreach ($tokenValues as $key => $value) {
+			$content = str_replace('{{'.$key.'}}',$value,$content);
+		}
+		fileFromString($file,$content);
 	}
 }
 
@@ -244,7 +317,7 @@ function setPropertiesFromXmlItems($object,$xmlNode,$selectedProperty=NULL,$incl
 		$name = (string) $item['name'];
 		$value = (string) $item[0];
 		$sepPos = strpos($name,'/');
-		if ($sepPos!=false) {							// subproperty
+		if ($sepPos!==false) {							// subproperty
 			$topLevel = substr($name,0,$sepPos);
 			$name = substr($name,$sepPos+1);
 			if ($topLevel==$selectedProperty)
@@ -282,72 +355,6 @@ function loadCascadingXmlFileItems($object,$filename,$machine_name = NULL) {
 }
 
 
-/**
- *
- * PHP versions 5.1.4
- *
- * George A. Papayiannis
- *
- * This class provides the magic functions needed to create
- * a dynamic object.  Subclasses would extend this object
- * and call the constructor with a parsed array.  See
- * g_url_decode.class.php for an example of creating a
- * dynamic object from the URL query string.
- *
- */
 
-class DynamicObject extends ArrayObject {
-
-	public function __get($name) {
-		if ($name=='revision')
-			print('revision');
-		if (isset($this[$name]))
-			return $this[$name];
-		else
-			return NULL;
-	}
-
-	public function __set($name, $val) {
-		return $this[$name] = $val;
-	}
-}
-/*
-class DynamicObject implements IteratorAggregate {
-	private $param = array();
-
-	public function __construct($init) {
-			$this->param = get_object_vars($init);
-	}
-
-	private function __get($name) {
-		if (isset($this->param[$name]))
-			return $this->param[$name];
-		else
-			return NULL;
-	}
-
-	private function __set($name, $val) {
-		$this->param[$name] = $val;
-	}
-
-	private function __isset($name) {
-		return isset($this->param[$name]);
-	}
-
-	private function __unset($name) {
-		unset($this->param[$name]);
-	}
-
-	private function __call($name, $var) {
-			// add code to simulate function call
-			// return TRUE for success
-	}
-
-	// for IteratorAggregate interface
-	public function getIterator() {
-		return $this->param->getIterator();
-	}
-}
-*/
 
 ?>
