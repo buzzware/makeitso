@@ -270,7 +270,7 @@ function endsWith($haystack, $needle, $case=true) {
 		return strcasecmp($ss,$needle)==0;
 }
 
-function setProperty($object, $property, $value) {
+function setProperty(&$object, $property, $value) {
 	if (is_array($object))
 		$object[$property] = $value;
 	else
@@ -290,6 +290,11 @@ function getProperty($object, $property) {
 		else
 			return NULL;
 	}
+}
+
+function getEnvVar($name) {
+	$result = getenv($name);
+	return $result===false ? NULL : $result;
 }
 
 /*

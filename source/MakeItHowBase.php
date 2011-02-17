@@ -165,8 +165,9 @@ class MakeItHowBase {
 		$pars = $this->setOptionsFromArguments($pars);		// modify $pars for use below
 
 		$what = NULL;
-		if ($whatname = isset($pars['what']) ? $pars['what'] : null)
+		if ($whatname = getProperty($pars,'what'))
 			$what = $this->findXmlFile($whatname);
+		print 'whatname:'.$whatname.' what:'.$what;
 		if ($what)
 			$this->loadWhatXml($what);
 		else if ($whatname)	{							// given name of file to load but not found
