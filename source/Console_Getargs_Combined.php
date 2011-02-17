@@ -1128,6 +1128,16 @@ class Console_Getargs_Combined {
 		return !($p===0);
 	}
 
+	static function is_option($string) {
+		$p = strpos($string,'--');
+		return ($p===0);
+	}
+
+	static function option_has_value($string) {
+		$p = strpos($string,'=');
+		return ($p!==false);
+	}
+
 	static function split_option($option) {
 		$result = array();
 		preg_match_all("/--([^\s=]+)={0,1}(.*)/", $option, $result);
@@ -1150,20 +1160,39 @@ class Console_Getargs_Combined {
 				[3] => test/exampleWin/MakeItWhat.xml
 		)
 	*/
-	static function getArgs() {
+
+	// On Windows, this code does not support empty options (without a value) very well eg. --blah argument1
+	// will be interpreted as --blah=argument1. To avoid this either put all arguments before options or
+	// follow the empty option with another option or give a value of true
+	static function getArgs($argv=NULL) {
 		$obj =& new Console_Getargs_Options();
-		$err = $obj->init(array());
+		if ($argv)
+			$err = $obj->init(array(),$argv);
+		else
+			$err = $obj->init(array());
 		$result = array();
 		$i = 1;
 		$args = $obj->args;
 		//print_r($args);
+		$empty_option = NULL;
 		foreach($args as $a) {
-			if (Console_Getargs_Combined::isarg($a)) {
-				$result[$i++] = $a;
+			if (Console_Getargs_Combined::is_option($a)) {
+				if ($empty_option!==NULL) {
+					$result[$empty_option] = true;				
+					$empty_option = NULL;
+				}
+				if (Console_Getargs_Combined::option_has_value($a)) {		// eg. --abc=123
+					$kv = Console_Getargs_Combined::split_option($a);
+					$rhs = ($kv[1]==="" ? true : $kv[1]);
+					$result[$kv[0]] = $rhs;
+				} else {
+					$empty_option = ltrim($a,'-');
+				}
+			} else if ($empty_option!==NULL) {
+				$result[$empty_option] = $a;
+				$empty_option = NULL;
 			} else {
-				$kv = Console_Getargs_Combined::split_option($a);
-				$rhs = ($kv[1]==="" ? true : $kv[1]);
-				$result[$kv[0]] = $rhs;
+				$result[$i++] = $a;
 			}
 		}
 		return $result;

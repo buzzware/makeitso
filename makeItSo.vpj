@@ -67,6 +67,24 @@
 		</Folder>
 	</CustomFolders>
 	<Files AutoFolders="DirectoryView">
+		<Folder Name="../decimal">
+			<Folder Name="deploy">
+				<F
+					N="../decimal/deploy/*"
+					Recurse="1"
+					Refilter="0"
+					Excludes=".svn/"/>
+			</Folder>
+			<Folder Name="projects">
+				<Folder Name="deployment_dev">
+					<F
+						N="../decimal/projects/deployment_dev/*"
+						Recurse="1"
+						Refilter="0"
+						Excludes=".svn/"/>
+				</Folder>
+			</Folder>
+		</Folder>
 		<Folder Name="../decimal-deploy">
 			<F
 				N="../decimal-deploy/*"

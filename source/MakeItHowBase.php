@@ -56,6 +56,8 @@ class MakeItHowBase {
 	function getXpathNodes($path,$xml=NULL) {
 		if (!$xml)
 			$xml = $this->whatXml;
+		if (!$xml)
+			return NULL;
 		return $xml->xpath($path);		// get matching nodes
 	}
 
@@ -167,6 +169,11 @@ class MakeItHowBase {
 			$what = $this->findXmlFile($whatname);
 		if ($what)
 			$this->loadWhatXml($what);
+		else if ($whatname)	{							// given name of file to load but not found
+			$msg = "Unable to find what file ".$whatname."\n";
+			print $msg;
+			throw new Exception($msg);
+		}
 
 		$this->setCommandLineSimpleItems($pars);					// set wuth $pars
 	}
