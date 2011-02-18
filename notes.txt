@@ -107,3 +107,25 @@ Windows allows line continuation in batch files using ^
 * Utilities
 - either static functions to call, or objects to create
 
+
+msdeploy.exe http://technet.microsoft.com/en-us/library/dd568996(WS.10).aspx
+
+http://serverfault.com/questions/23340/ignoring-svn-directories-under-iis
+
+
+
+
+svn checkout "svn://bug.decimal.com.au/var/svn-repos/decimal/branches/rob/20100204-DecimalProductMigration/projects/system" "C:\decimal\code\system" --username fred --password dfgdfgdfg --revision HEAD
+
+
+
+revisionrevisionsvn che
+ckout "svn://bug.decimal.com.au/var/svn-repos/decimal/branches/rob/20100204-Deci
+malProductMigration/projects/sqlScripts" "C:\decimal\code\sqlScripts" --username
+ fred --password dfgdfgdfg --revision HEAD
+ 
+
+svn checkout "svn://bug.decimal.com.au/var/svn-repos/decimal/branches/rob/20100204-DecimalProductMigration/projects/sqlScripts" "C:\decimal\code\sqlScripts" --username fred --password dfgdfgdfg --revision HEAD
+
+
+svn revert --non-interactive --recursive "C:\Inetpub\wwwroot\dcwealth"

@@ -157,6 +157,7 @@ class MakeItHowBase {
 	// override this to configure differently
 	function configureWhat($pars) {
 		$this->workingPath = getcwd();
+		print "Working Path ".$this->workingPath."\n";
 
 		if ($pars===NULL)
 			$pars = Console_Getargs_Combined::getArgs();

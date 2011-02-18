@@ -96,10 +96,15 @@ class ExecException extends CustomException {}
 
 // Executes the given command and returns the result as a string, even if returned as array
 // If the exit code of the command is non-zero, it will die with the result as a message
-function execSafe($command) {
+function execSafe($command,$workingFolder=NULL) {
+	$dir_before = getcwd();
+	if ($workingFolder)
+		chdir($workingFolder);
 	exec($command,$result,$retcode);
+	chdir($dir_before);
 	if (is_array($result))
 		$result = join("\n", $result);
+	print $result;
 	if ($retcode)
 		throw new ExecException($command." failed (exit code ".$retcode.")",$retcode);
 	return $result;
@@ -137,6 +142,13 @@ function fileToString($filename) {
 	return $result;
 	*/
 	return file_get_contents($filename);
+}
+
+function ensurePath($path) {
+	if (pathExists($path))
+		return;
+	if (!mkdir($path,0,true))
+		throw new Exception('Failed creating '.$path);
 }
 
 function fileFromString($filename,$content) {
@@ -208,6 +220,8 @@ function ensureSlash($path){
 function pathParent($path) {
 	if ($path=='/')
 		return NULL;
+	if (preg_match('/^[a-z]:\x5C$/i', $path))
+		return NULL;
 	if ($path=='.')
 		return NULL;
 	$path = dirname($path);
@@ -216,6 +230,32 @@ function pathParent($path) {
 	return $path;	
 }
 
+/**
+ * Takes one or more file names and combines them, using the correct path separator for the 
+ *         current platform and then return the result.
+ * Example: joinPath('/var','www/html/','try.php'); // returns '/var/www/html/try.php'
+ * Link: http://www.bin-co.com/php//scripts/filesystem/join_path/
+ */
+function joinPaths() {
+    $path = '';
+    $arguments = func_get_args();
+    $args = array();
+    foreach($arguments as $a) if($a !== '') $args[] = $a;//Removes the empty elements
+    
+    $arg_count = count($args);
+    for($i=0; $i<$arg_count; $i++) {
+        $folder = $args[$i];
+        
+        if($i != 0 and $folder[0] == DIRECTORY_SEPARATOR) $folder = substr($folder,1); //Remove the first char if it is a '/' - and its not in the first argument
+        if($i != $arg_count-1 and substr($folder,-1) == DIRECTORY_SEPARATOR) $folder = substr($folder,0,-1); //Remove the last char - if its not in the last argument
+        
+        $path .= $folder;
+        if($i != $arg_count-1) $path .= DIRECTORY_SEPARATOR; //Add the '/' if its not the last element.
+    }
+    return $path;
+}
+
+
 function insertSubExtension($filename,$subext) {
 	$dotPos = strrpos($filename,'.');
 	$basename = substr($filename,0,$dotPos);
@@ -223,7 +263,6 @@ function insertSubExtension($filename,$subext) {
 	$result = $basename.'.'.$subext.$ext;
 	return $result;
 }
-
 
 function pathExists($path) {
 	return file_exists($path) || is_dir($path);
