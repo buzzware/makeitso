@@ -1164,7 +1164,7 @@ class Console_Getargs_Combined {
 	// On Windows, this code does not support empty options (without a value) very well eg. --blah argument1
 	// will be interpreted as --blah=argument1. To avoid this either put all arguments before options or
 	// follow the empty option with another option or give a value of true
-	static function getArgs($argv=NULL) {
+	static function getArgs($argv=null) {
 		$obj =& new Console_Getargs_Options();
 		if ($argv)
 			$err = $obj->init(array(),$argv);
@@ -1174,12 +1174,12 @@ class Console_Getargs_Combined {
 		$i = 1;
 		$args = $obj->args;
 		//print_r($args);
-		$empty_option = NULL;
+		$empty_option = null;
 		foreach($args as $a) {
 			if (Console_Getargs_Combined::is_option($a)) {
-				if ($empty_option!==NULL) {
+				if ($empty_option!==null) {
 					$result[$empty_option] = true;				
-					$empty_option = NULL;
+					$empty_option = null;
 				}
 				if (Console_Getargs_Combined::option_has_value($a)) {		// eg. --abc=123
 					$kv = Console_Getargs_Combined::split_option($a);
@@ -1188,9 +1188,9 @@ class Console_Getargs_Combined {
 				} else {
 					$empty_option = ltrim($a,'-');
 				}
-			} else if ($empty_option!==NULL) {
+			} else if ($empty_option!==null) {
 				$result[$empty_option] = $a;
-				$empty_option = NULL;
+				$empty_option = null;
 			} else {
 				$result[$i++] = $a;
 			}

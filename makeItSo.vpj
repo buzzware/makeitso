@@ -76,6 +76,10 @@
 					Excludes=".svn/"/>
 			</Folder>
 			<Folder Name="projects">
+				<Folder Name="dcwealth">
+					<F N="../decimal/projects/dcwealth/install.php"/>
+					<F N="../decimal/projects/dcwealth/install.xml"/>
+				</Folder>
 				<Folder Name="deployment_dev">
 					<F
 						N="../decimal/projects/deployment_dev/*"

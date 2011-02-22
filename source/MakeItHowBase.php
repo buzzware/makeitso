@@ -53,25 +53,25 @@ class MakeItHowBase {
 		}
 	}
 
-	function getXpathNodes($path,$xml=NULL) {
+	function getXpathNodes($path,$xml=null) {
 		if (!$xml)
 			$xml = $this->whatXml;
 		if (!$xml)
-			return NULL;
+			return null;
 		return $xml->xpath($path);		// get matching nodes
 	}
 
-	function getXpathNode($path,$xml=NULL) {
+	function getXpathNode($path,$xml=null) {
 		$nodes = $this->getXpathNodes($path,$xml);
 		if (count($nodes)==0)
 			return null;
 		return $nodes[0];						// get first node
 	}
 
-	function getXpathValue($path,$xml=NULL) {
+	function getXpathValue($path,$xml=null) {
 		$node = $this->getXpathNode($path,$xml);
 		if (!$node)
-			return NULL;
+			return null;
 		$result = (string) $node[0];	// get text of node
 		return $result;								// return text
 	}
@@ -107,7 +107,7 @@ class MakeItHowBase {
 	}
 
 	function callTask($task) {
-		$result = NULL;
+		$result = null;
 		if ($task && method_exists($this,$task)) {
 			print "Calling task ".$task." ...\n\n";
 			$result = $this->{$task}();
@@ -129,9 +129,9 @@ class MakeItHowBase {
 	// what files end in xml.
 	// This method can be overriden for implementing a custom strategy
 	function setOptionsFromArguments($pars) {
-		$how = NULL;
-		$what = NULL;
-		$task = NULL;
+		$how = null;
+		$what = null;
+		$task = null;
 		for ($i=1; $i<=3; $i++) {
 			$option = getProperty($pars,$i);
 			if (!$option)
@@ -159,13 +159,13 @@ class MakeItHowBase {
 		$this->workingPath = getcwd();
 		print "Working Path ".$this->workingPath."\n";
 
-		if ($pars===NULL)
+		if ($pars===null)
 			$pars = Console_Getargs_Combined::getArgs();
 		$this->pars = $pars;															// store unmodified pars
 		
 		$pars = $this->setOptionsFromArguments($pars);		// modify $pars for use below
 
-		$what = NULL;
+		$what = null;
 		if ($whatname = getProperty($pars,'what'))
 			$what = $this->findXmlFile($whatname);
 		print 'whatname:'.$whatname.' what:'.$what;

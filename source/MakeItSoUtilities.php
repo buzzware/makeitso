@@ -34,7 +34,7 @@ class DynamicObject extends ArrayObject {
 		if (isset($this[$name]))
 			return $this[$name];
 		else
-			return NULL;
+			return null;
 	}
 
 	public function __set($name, $val) {
@@ -96,7 +96,7 @@ class ExecException extends CustomException {}
 
 // Executes the given command and returns the result as a string, even if returned as array
 // If the exit code of the command is non-zero, it will die with the result as a message
-function execSafe($command,$workingFolder=NULL) {
+function execSafe($command,$workingFolder=null) {
 	$dir_before = getcwd();
 	if ($workingFolder)
 		chdir($workingFolder);
@@ -110,14 +110,14 @@ function execSafe($command,$workingFolder=NULL) {
 	return $result;
 }
 
-function svn_cmd($command,$sourceServer,$sourceUrl,$destPath,$options = NULL) {
+function svn_cmd($command,$sourceServer,$sourceUrl,$destPath,$options = null) {
 	if (!$options)
 		$options = '';
 	$cmd = "svn ".$command.' "'.$sourceServer.$sourceUrl.'" "'.$destPath.'" '.$options;
 	return $cmd;
 }
 
-function svn($command,$sourceServer,$sourceUrl,$destPath,$options = NULL) {
+function svn($command,$sourceServer,$sourceUrl,$destPath,$options = null) {
 	if (!$options)
 		$options = '';
 	print("svn ".$command." ".$options." ".$sourceUrl." => ".$destPath."\n");
@@ -219,14 +219,14 @@ function ensureSlash($path){
 
 function pathParent($path) {
 	if ($path=='/')
-		return NULL;
+		return null;
 	if (preg_match('/^[a-z]:\x5C$/i', $path))
-		return NULL;
+		return null;
 	if ($path=='.')
-		return NULL;
+		return null;
 	$path = dirname($path);
 	if ($path=='.')
-		return NULL;
+		return null;
 	return $path;	
 }
 
@@ -268,7 +268,7 @@ function pathExists($path) {
 	return file_exists($path) || is_dir($path);
 }
 
-function findFileUpwards($findPath,$startPath=NULL) {
+function findFileUpwards($findPath,$startPath=null) {
 	if (!$startPath)
 		$startPath = getcwd();
 	$currPath = ensureSlash(realpath($startPath));
@@ -276,7 +276,7 @@ function findFileUpwards($findPath,$startPath=NULL) {
 	while ($currPath && !($testPathExists = pathExists($testPath = $currPath.$findPath))) {
 		$currPath = ensureSlash(pathParent($currPath));
 	}
-	return $currPath && $testPathExists ? $testPath : NULL;
+	return $currPath && $testPathExists ? $testPath : null;
 }
 
 function hostName() {
@@ -322,18 +322,18 @@ function getProperty($object, $property) {
 		if (isset($object[$property]))
 			return $object[$property];
 		else
-			return NULL;
+			return null;
 	} else {
 		if (isset($object->{$property}))
 			return $object->{$property};
 		else
-			return NULL;
+			return null;
 	}
 }
 
-function getEnvVar($name) {
+function envVar($name) {
 	$result = getenv($name);
-	return $result===false ? NULL : $result;
+	return $result===false ? null : $result;
 }
 
 /*
@@ -363,7 +363,7 @@ function expandConfigTokens($config) {
 	return $result;
 }
 
-function setPropertiesFromXmlItems($object,$xmlNode,$selectedProperty=NULL,$includeFlatProperties=true) {
+function setPropertiesFromXmlItems($object,$xmlNode,$selectedProperty=null,$includeFlatProperties=true) {
 	foreach ($xmlNode->item as $item) {
 		$name = (string) $item['name'];
 		$value = (string) $item[0];
@@ -381,7 +381,7 @@ function setPropertiesFromXmlItems($object,$xmlNode,$selectedProperty=NULL,$incl
 	return $object;
 }
 
-function loadSimpleItems($filename,$object=NULL) {
+function loadSimpleItems($filename,$object=null) {
 	$filestring = file_get_contents($filename); // load $whatname to $filestring
 	$fileXml = new SimpleXMLElement($filestring);
 	if (!$object)
@@ -390,7 +390,7 @@ function loadSimpleItems($filename,$object=NULL) {
 	return $object;
 }
 
-function loadCascadingXmlFileItems($object,$filename,$machine_name = NULL) {
+function loadCascadingXmlFileItems($object,$filename,$machine_name = null) {
 	$fn = $filename;
 	if (file_exists($fn))
 		loadSimpleItems($fn,$object);
