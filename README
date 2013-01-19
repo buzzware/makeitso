@@ -1,5 +1,3 @@
-******* This is very early in development and is provided "as is" with no promise of functionality or quality *******
-
 Description
 
 This very simple framework enables a collection of tasks to be defined as methods on a PHP class, and configuration values to be defined in a XML file. The tasks then have easy access to the configuration values as instance variables (declared or dynamic) or via XPath.
