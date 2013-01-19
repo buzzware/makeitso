@@ -35,73 +35,69 @@ require_once 'MakeItSoUtilities.php';
  */
 class MakeItHowBase {
 
-	var $how;							// path to MakeItHow.php
+	var $how;							// full path of MakeItHow.php
+	var $howDir;					// directory containing MakeItHow.php
 	var $workingPath;			// current working path
 	var $task = 'main';		// task to execute
 	var $pars = array();
 	var $whatXml;					// most recent xml loaded by loadWhatXml
-	
-	static function loadClass($how) {
-		if (file_exists($how = realpath($how))) {
-			print("Loading How file ".$how." ...\n");
-			require_once $how;
+	var $what = 'MakeItWhat.xml';
+	var $preventExecCommand = false;
+	var $execCommands = array();
+	var $logger;
+
+	static function loadClass($how,$logger=null) {
+		$howPath = realpath($how);
+		if ($logger)
+			$logger->info("Loading How file ".$howPath." ...");
+		else
+			print("Loading How file ".$howPath." ...\n");
+		require_once $howPath;
 			$result = new MakeItHow();
+		if (!$result->logger)					// if no logger set, use given one or create a default one (MakeItHowBase doesn't set logger, but subclasses may, which will take precedence)
+			$result->logger = ($logger ? $logger : MakeItSo::log());
+		$result->how = $howPath;
+		$result->howDir = dirname($howPath);
 			return $result;
-		} else {
-			print("Error! How file ".$how." doesn't exist\n");
-			exit(1);
-		}
 	}
 
-	function getXpathNodes($path,$xml=null) {
-		if (!$xml)
-			$xml = $this->whatXml;
-		if (!$xml)
+	// just for overriding by other classes
+	function __construct() {
+	}
+
+	public function __get($name) {
+		if (isset($this->{$name}))
+			return $this->{$name};
+		else
 			return null;
-		return $xml->xpath($path);		// get matching nodes
-	}
-
-	function getXpathNode($path,$xml=null) {
-		$nodes = $this->getXpathNodes($path,$xml);
-		if (count($nodes)==0)
-			return null;
-		return $nodes[0];						// get first node
-	}
-
-	function getXpathValue($path,$xml=null) {
-		$node = $this->getXpathNode($path,$xml);
-		if (!$node)
-			return null;
-		$result = (string) $node[0];	// get text of node
-		return $result;								// return text
-	}
-
-	function setXmlSimpleItems($whatXml) {
-		setPropertiesFromXmlItems($this,$whatXml->simpleItems);
 	}
 	
-	function setCommandLineSimpleItems($pars) {
-		foreach ($pars as $key => $value) {
-			if (!is_numeric($key))
-				$this->{$key} = $value;
+	function command($cmd,$workingFolder=null) {
+		if (!$workingFolder)
+			$workingFolder = getcwd();
+		$this->logger->debug("Executing command \"".$cmd."\" in ".$workingFolder."\n");
+		$result = '';
+		if ($this->preventExecCommand) {
+			$this->execCommands[] = $cmd;
+		} else {
+			$result = execSafe($cmd,$workingFolder);
 		}
-	}	
-
-	function findXmlFile($whatname) {
-		if ($whatname && file_exists($whatname = realpath($whatname))) {
-			return $whatname;
-		}
-		$whatname = realpath($this->workingPath . DIRECTORY_SEPARATOR . 'MakeItWhat.xml');
-		if (file_exists($whatname))
-			return $whatname;		// found in working path
-		return null;							// not found
+		$this->logger->debug("Command completed succesfully (exit code 0)");
+		$this->logger->debug($result);		
+		return $result;
 	}
 
-	function loadWhatXml($whatname) {
-		print "Loading what file ".$whatname." ...\n\n";
+	function importEnvVars() {
+		$varnames = func_get_args();
+		foreach ($varnames as $name)
+			setProperty($this,$name,envVar($name));
+	}
+
+	function loadWhatXmlFile($whatname) {
+		$this->logger->info("Loading what file ".$whatname." ...\n\n");
 		$filestring = file_get_contents($whatname); // load $whatname to $filestring
 		$whatXml = new SimpleXMLElement($filestring);
-		$this->setXmlSimpleItems($whatXml);
+		setPropertiesFromXmlItems($this,$whatXml->simpleItems);
 		$this->whatXml = $whatXml;
 		return $whatXml;
 	}
@@ -109,12 +105,22 @@ class MakeItHowBase {
 	function callTask($task) {
 		$result = null;
 		if ($task && method_exists($this,$task)) {
-			print "Calling task ".$task." ...\n\n";
+			$this->logger->info("\n>>> Calling task ".$task." ...");
+			//try {
 			$result = $this->{$task}();
+			//} catch(CustomException $e) {
+			//	$code = $e->getCode();
+			//	if ($code===0)
+			//		$code = 1;
+			//	exit((integer) $code);
+			//} catch(Exception $e) {
+			//	exit(1);
+			//}
 		} else {
-			print "Failed calling task ".$task." - task doesn't exist\n";
+			$this->logger->err("\n>>> Failed calling task ".$task." - task doesn't exist\n");
 			exit(1);			
 		}
+		$this->logger->info("\n>>> Completed task ".$task);
 		return $result;
 	}
 
@@ -128,14 +134,17 @@ class MakeItHowBase {
 	// It also assumes how files end in .php (case insensitive so .PHP is supported) and
 	// what files end in xml.
 	// This method can be overriden for implementing a custom strategy
-	function setOptionsFromArguments($pars) {
+	function interpretNumericPars($pars) {
 		$how = null;
 		$what = null;
 		$task = null;
 		for ($i=1; $i<=3; $i++) {
-			$option = getProperty($pars,$i);
-			if (!$option)
+			if (isset($pars[$i])) {
+				$option = $pars[$i];
+				unset($pars[$i]);
+			} else {
 				continue;
+			}
 			if (!$how && endsWith($option,'.php',false)) {
 				$how = $option;
 			} else if (!$what && endsWith($option,'.xml',false)) {
@@ -153,38 +162,106 @@ class MakeItHowBase {
 		return $pars;
 	}
 
+	function getSystemPars($pars) {
+		$pars['workingPath'] = getcwd();
+		return $pars;
+	}
 
-	// override this to configure differently
-	function configureWhat($pars) {
-		$this->workingPath = getcwd();
-		print "Working Path ".$this->workingPath."\n";
+	// if what file given on command line and file doesn't exist, raise exception
+	// if default what file doesn't exist, set result['what'] to null
+	// otherwise set result['what'] to full path of a file that exists
+	function handleConsolePars($consolePars) {
+		if ($consolePars===null)
+			$consolePars = Console_Getargs_Combined::getArgs();
+		$this->pars = $consolePars;															// store unmodified pars
+		$consolePars = $this->interpretNumericPars($consolePars);		// modify $consolePars for use below	
 
-		if ($pars===null)
-			$pars = Console_Getargs_Combined::getArgs();
-		$this->pars = $pars;															// store unmodified pars
-		
-		$pars = $this->setOptionsFromArguments($pars);		// modify $pars for use below
-
-		$what = null;
-		if ($whatname = getProperty($pars,'what'))
-			$what = $this->findXmlFile($whatname);
-		print 'whatname:'.$whatname.' what:'.$what;
-		if ($what)
-			$this->loadWhatXml($what);
-		else if ($whatname)	{							// given name of file to load but not found
-			$msg = "Unable to find what file ".$whatname."\n";
-			print $msg;
+		$whatFileGiven = getProperty($consolePars,'what')!==null;
+		if (!$whatFileGiven)
+			$consolePars['what'] = $this->what;
+		if (!file_exists($fullpath = realpath($consolePars['what'])))
+			$fullpath = ensureSlash(dirname($this->how)).$consolePars['what'];
+		$whatExists = file_exists($fullpath);
+		if ($whatExists) {
+			$consolePars['what'] = $fullpath;
+		} else {
+			if ($whatFileGiven) {
+				$msg = "Unable to find what file ".$fullpath."\n";
+				$this->logger->err($msg);
 			throw new Exception($msg);
+			} else {
+				$consolePars['what'] = null;
+			}
 		}
-
-		$this->setCommandLineSimpleItems($pars);					// set wuth $pars
+		return $consolePars;
 	}
 	
+	function loadWhatFilePars($pars) {
+		if (!$pars['what'])
+			return $pars;
+		$filestring = file_get_contents($pars['what']); // load $whatname to $filestring
+		$whatXml = new SimpleXMLElement($filestring);
+		$pars = setPropertiesFromXmlItems($pars,$whatXml->simpleItems);
+		$this->whatXml = $whatXml;
+		return $pars;
+	}
+
+
+	// override this to configure differently
+	function configureWhat($consolePars=null) {
+		$cookedConsolePars = $this->handleConsolePars($consolePars);
+		$pars = new DynamicObject($this);
+		copy_properties($cookedConsolePars,$pars);
+		$pars = $this->getSystemPars($pars);
+		$pars = $this->loadWhatFilePars($pars);
+		copy_properties($cookedConsolePars,$pars);
+		$pars = expandConfigTokens($pars);
+		copy_properties($pars,$this);
+	}
+		
 	// override this to call (or not call) default task differently
 	function callDefaultTask() {
 		if ($this->task)
 			$this->callTask($this->task);
 	}
 
+	// override this if you want to do it differently
+	function configReport() {
+		$result = "\n  MakeItSo Configuration :\n";
+		$result .= "\n";
+		$props = get_object_vars($this);
+		foreach ($props as $key => $value) {
+			$str = '';
+			$type = gettype($value);
+			switch($type) {
+				case "boolean":
+				case "integer":
+				case "double":
+				case "string":
+				case "array":
+					$str = ((String) $value);
+				break;
+				case "NULL":
+					$str = 'null';
+				break;
+				case "object":
+					$str = 'Object';
+				break;
+				case "resource":
+					$str = $type;
+				break;
+				case "unknown type":
+					$str = 'unknown';
+				break;
+			}
+			$result .= '  '.str_pad($key,22,' ',STR_PAD_LEFT).' => '.$str."\n";
+		}
+		$result .= "\n";
+		return $result;
+	}
+
+	function dumpConfig() {
+		$this->logger->info($this->configReport());
+	}
 }
 ?>

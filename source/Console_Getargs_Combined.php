@@ -29,7 +29,7 @@
 // +----------------------------------------------------------------------+
 //
 // $Id: Getargs.php 304313 2010-10-11 14:37:56Z jespino $
-require_once 'PEAR.php';
+//require_once 'PEAR.php';
 /**#@+
  * Error Constants
 */
@@ -224,7 +224,7 @@ class Console_Getargs
     function &factory($config = array(), $arguments = null)
     {
         // Create the options object.
-        $obj = & new Console_Getargs_Options();
+        $obj = new Console_Getargs_Options();
 
         // Try to set up the arguments.
         $err = $obj->init($config, $arguments);
@@ -1165,7 +1165,7 @@ class Console_Getargs_Combined {
 	// will be interpreted as --blah=argument1. To avoid this either put all arguments before options or
 	// follow the empty option with another option or give a value of true
 	static function getArgs($argv=null) {
-		$obj =& new Console_Getargs_Options();
+		$obj = new Console_Getargs_Options();
 		if ($argv)
 			$err = $obj->init(array(),$argv);
 		else

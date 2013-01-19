@@ -1,4 +1,4 @@
-#!@php_bin@
+#!/usr/bin/php
 <?php
 /* makeitso
  *
@@ -25,12 +25,20 @@
  * THE SOFTWARE.
  *
  */
+ 
+	// configure the default timezone
+	date_default_timezone_set('Australia/Perth');
+
+	set_include_path( get_include_path().PATH_SEPARATOR.dirname(__FILE__) );	// adds local dir to include path
+	require_once 'MakeItHowBase.php';
 
 	function printBanner() {
-		print "\n%%%%%%%%%%%%%%%%%%  MakeItSo  %%%%%%%%%%%%%%%%%%\n\n";
+		MakeItSo::log()->info('');
+		MakeItSo::log()->info("================ M a k e I t S o ================\n\n  Launched ".dateTimeString()."\n");
 	}
 
 	function printUsage() {
+		/*
 		print "Usage: makeitso <task> <arguments and options>\n";
 		print "<task> defaults to main";
 		print "\noptions are prefixed with -- eg. --someSwitch=on\n";
@@ -40,10 +48,14 @@
 		print "  --how=<PHP file of class descending from MakeItHowBase (defaults to MakeItHow.php in the current working directory)>\n";
 		print "  --what=<xml file of config values (defaults to MakeItWhat.xml in the current working directory)>\n";
 		print "\n";
+		*/
 	}
 
+	function printFooter() {
+		MakeItSo::log()->info("\n  Completed ".dateTimeString()."\n==================================================\n\n");
+	}
 
-	require_once 'MakeItHowBase.php';
+	$originalWorkingPath = null;
 
 	// commandline examples :
 	// makeitso --verbose go --howFile=makeithow.php
@@ -53,17 +65,74 @@
 	// So pattern is :
 	//
 	// makeitso <task> <arguments and options>
+	function makeitso_exception_handler($e) {
+		global $originalWorkingPath;
+		MakeItSo::log()->info('');
+		MakeItSo::log()->info('!  !  !  !  !  !  !  !  !  !  !  !  !  !  !');
+		MakeItSo::log()->err(standardExceptionHandler($e));
+		if (is_a($e,'CustomException')) {
+			$code = $e->getCode();
+			if ($code===0)
+				$code = 1;
+		} else {
+			$code = 1;
+		}
+		if ($originalWorkingPath)
+			chdir($originalWorkingPath);
+		exit((integer) $code);
+	}
+	set_exception_handler('makeitso_exception_handler');
 
+	function makeitso_error_handler($errno, $errstr, $errfile, $errline) {
+		global $originalWorkingPath;
+    if (!(error_reporting() & $errno)) {
+        // This error code is not included in error_reporting
+        return;
+    }
+		MakeItSo::log()->info('');
+		MakeItSo::log()->info('!  !  !  !  !  !  !  !  !  !  !  !  !  !  !');
+		MakeItSo::log()->err(errorReport($errno, $errstr, $errfile, $errline));
+
+    //if ($errno===E_USER_ERROR) {
+			MakeItSo::log()->info("Aborting...\n");
+			if ($originalWorkingPath)
+				chdir($originalWorkingPath);
+			exit(1);
+		//}
+
+    /* Don't execute PHP internal error handler */
+    return true;
+	}
+	set_error_handler('makeitso_error_handler');
+
+	$originalWorkingPath = getcwd();
 	printBanner();
 	$pars = Console_Getargs_Combined::getArgs();
 	$howFilename = 'MakeItHow.php';
-	if (isset($pars['how']))
+	if (isset($pars['how'])) {
 		$howFilename = $pars['how'];
-	else if (endsWith($pars[1],'.php',false))
+	} else if (empty($pars)) {
+		echo 'no parameters specified!' . PHP_EOL;
+	} else if (endsWith($pars[1],'.php',false)) {
 		$howFilename = $pars[1];
-	$how = MakeItHowBase::loadClass($howFilename);
+	}
+	
+	if (file_exists(realpath($howFilename))) {		// assuming $howFilename exists, will change dir to its directory before running tasks
+		$howPath = dirname(realpath($howFilename));
+		chdir($howPath);
+		$how = MakeItHowBase::loadClass(basename($howFilename),MakeItSo::log());
 	$how->configureWhat($pars);
+		$how->afterConfig();
 	$how->callDefaultTask();
-	print "\n\n";
+		printFooter();
+		if ($originalWorkingPath)
+			chdir($originalWorkingPath);
+	} else {
+		if ($logger)
+			$logger->err("Error! How file ".$howFilename." from ".getcwd()." doesn't exist");
+		else
+			print("Error! How file ".$howFilename." from ".getcwd()." doesn't exist\n");
+		exit(1);
+	}
 
 ?>
